@@ -17,7 +17,7 @@ export class Asset {
   @Column()
   name: string
 
-  @Column()
+  @Column({ nullable: true })
   decimals: number
 
   @Column({ nullable: true })

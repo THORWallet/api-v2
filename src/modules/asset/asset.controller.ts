@@ -24,4 +24,16 @@ export class AssetController {
     this.cacheManager.set(ASSET_KEYS.assets, assets, CACHE_TIME.hour)
     return assets
   }
+
+  @Get('/db')
+  async getAssetsFromDb(): Promise<Asset[]> {
+    const assetsFromCache = await this.cacheManager.get<Asset[]>(ASSET_KEYS.assets)
+
+    if (assetsFromCache) {
+      return assetsFromCache
+    }
+    const assets = await this.assetService.getAssets()
+    this.cacheManager.set(ASSET_KEYS.assets, assets, CACHE_TIME.hour)
+    return assets
+  }
 }

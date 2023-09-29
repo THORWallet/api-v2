@@ -48,4 +48,8 @@ export class AssetService {
   getAssets(): Promise<Asset[]> {
     return this.getPoolAssets()
   }
+
+  getAssetsFromDb(): Promise<Asset[]> {
+    return this.assetRepository.find()
+  }
 }
