@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  const config = new DocumentBuilder().setTitle('ThorWallet API').setVersion('1.0').addTag('cats').build()
+  const config = new DocumentBuilder().setTitle('ThorWallet API').setVersion('1.0').build()
 
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
