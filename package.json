@@ -27,6 +27,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.12",
+    "@nestjs/throttler": "^5.0.0",
     "@nestjs/typeorm": "^10.0.0",
     "@xchainjs/xchain-crypto": "^0.3.0",
     "@xchainjs/xchain-util": "^0.13.2",

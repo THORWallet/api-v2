@@ -1,3 +1,4 @@
 export const BALANCE_KEYS = {
-  ethCache: 'eth-cache',
+  ethCache: (address: string) => `eth-cache-${address}`,
+  btcCache: (address: string) => `btc-cache-${address}`,
 }

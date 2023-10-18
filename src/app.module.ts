@@ -7,7 +7,9 @@ import { PoolModule } from './modules/pool/pool.module'
 import { InsertAssetsCommand } from './commands/assets/insert-assets-to-db'
 import { ConfigModule } from '@nestjs/config'
 import config from './modules/config/config'
-import { BalanceModule } from './modules/balance/balance.modulet'
+import { BalanceModule } from './modules/balance/balance.module'
+import { ThrottlerModule } from '@nestjs/throttler'
+import { CACHE_TIME } from './constants'
 
 @Module({
   imports: [
@@ -15,6 +17,13 @@ import { BalanceModule } from './modules/balance/balance.modulet'
       load: [config],
       isGlobal: true,
     }),
+    //TODO: config this
+    ThrottlerModule.forRoot([
+      {
+        ttl: 2 * CACHE_TIME.minute,
+        limit: 30,
+      },
+    ]),
     DbModule,
     AssetModule,
     CommandModule,
