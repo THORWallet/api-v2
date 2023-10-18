@@ -3,20 +3,21 @@ import { assetFromString } from '@xchainjs/xchain-util'
 import { PoolAsset } from './entities/pool-asset.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import axios from 'axios'
 import { PoolDetail } from '../pool/types/pool.types'
 import { Chain, tickers } from '../../constants'
 import { getDecimalsByAsset } from './asset.helpers'
+import { HttpService } from '@nestjs/axios'
 
 @Injectable()
 export class AssetService {
   constructor(
     @InjectRepository(PoolAsset)
     private poolAssetRepository: Repository<PoolAsset>,
+    private readonly tcMidgardApi: HttpService,
   ) {}
 
   async getPoolAssets(): Promise<any[]> {
-    const { data: thorchainPools } = await axios.get<PoolDetail[]>('https://midgard.thorwallet.org/v2/pools')
+    const { data: thorchainPools } = await this.tcMidgardApi.axiosRef.get<PoolDetail[]>('pools')
     const poolsAsAssets = thorchainPools.map((pool) => {
       const poolAsset = assetFromString(pool.asset)
       const { chain, ticker, symbol } = poolAsset
