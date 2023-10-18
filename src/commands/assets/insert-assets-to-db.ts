@@ -17,6 +17,7 @@ export class InsertAssetsCommand {
     try {
       const assets = await this.assetService.getAssets()
       const inserts = assets.map((asset) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id: _id, ...rest } = asset
         return rest
       })

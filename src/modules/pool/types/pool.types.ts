@@ -1,101 +1,51 @@
-export interface PoolDetail {
-  /**
-   * Float, also called APR. Annual return estimated linearly (not compounded) from a period of typically
-   * the last 30 or 100 days (configurable by the period parameter, default is 30). E.g. 0.1 means 10% yearly return.
-   * Due to Impermanent Loss and Synths this might be negative, but given Impermanent Loss Protection for 100+
-   * day members, frontends might show MAX(APR, 0).
-   * @type {string}
-   * @memberof PoolDetail
-   */
+import { ApiProperty } from '@nestjs/swagger'
+
+export class PoolDetail {
+  @ApiProperty({ type: String })
   annualPercentageRate: string
-  /**
-   *
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   asset: string
-  /**
-   * Int64(e8), the amount of Asset in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   assetDepth: string
-  /**
-   * Float, price of asset in rune. I.e. rune amount / asset amount.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   assetPrice: string
-  /**
-   * Float, the price of asset in USD (based on the deepest USD pool).
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   assetPriceUSD: string
-  /**
-   * Int64, Liquidity Units in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   liquidityUnits: string
-  /**
-   * Float, Average Percentage Yield: annual return estimated using last weeks income, taking compound interest into account.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   poolAPY: string
-  /**
-   * Int64(e8), the amount of Rune in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   runeDepth: string
-  /**
-   * The state of the pool, e.g. Available, Staged.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   status: string
-  /**
-   * Int64, Synth supply in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   synthSupply: string
-  /**
-   * Int64, Synth Units in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   synthUnits: string
-  /**
-   * Int64, Total Units (synthUnits + liquidityUnits) in the pool.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   units: string
-  /**
-   * Int64(e8), the total volume of swaps in the last 24h to and from Rune denoted in Rune.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   volume24h: string
-  /**
-   * Int64(e8), the total synth locked in saver vault.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   saversDepth: string
-  /**
-   * Int64(e8), the units tracking savers vault ownership.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   saversUnits: string
-  /**
-   * Float, Average Percentage Yield: annual return estimated using last weeks income, taking compound interest into account.
-   * @type {string}
-   * @memberof PoolDetail
-   */
+
+  @ApiProperty({ type: String })
   saversAPR: string
 }

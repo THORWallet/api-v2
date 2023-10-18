@@ -5,6 +5,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { ASSET_KEYS } from './cache-keys/asset.cache-keys'
 import { CACHE_TIME } from '../../constants'
+import { ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { config } from 'process'
 
 @Controller('assets')
 export class AssetController {
@@ -14,6 +16,11 @@ export class AssetController {
   ) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get Pool Assets from the Database',
+    description: 'Retrieve a list of assets from the database.',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [PoolAsset] })
   async getAssetsFromDb(): Promise<PoolAsset[]> {
     const assetsFromCache = await this.cacheManager.get<PoolAsset[]>(ASSET_KEYS.assets)
 

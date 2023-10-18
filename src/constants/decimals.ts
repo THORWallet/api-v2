@@ -47,5 +47,5 @@ export const DASH_DECIMAL = 8
 export const CACAO_DECIMAL = 10
 export const MAYA_DECIMAL = 4
 export const KUJI_DECIMAL = 6
-export const ETH_DECIMAL = 18;
+export const ETH_DECIMAL = 18
 export const RUNE_DECIMAL = 8
