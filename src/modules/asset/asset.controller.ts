@@ -5,10 +5,10 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { ASSET_KEYS } from './cache-keys/asset.cache-keys'
 import { CACHE_TIME } from '../../constants'
-import { ApiOperation, ApiResponse } from '@nestjs/swagger'
-import { config } from 'process'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 @Controller('assets')
+@ApiTags('Assets')
 export class AssetController {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,

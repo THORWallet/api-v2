@@ -1,9 +1,10 @@
 import { Controller, Get } from '@nestjs/common'
 import { PoolService } from './pool.service'
-import { ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PoolDetail } from './types/pool.types'
 
 @Controller('pools')
+@ApiTags('Pools')
 export class PoolController {
   constructor(private readonly poolService: PoolService) {}
 
