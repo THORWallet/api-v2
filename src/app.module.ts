@@ -7,6 +7,7 @@ import { PoolModule } from './modules/pool/pool.module'
 import { InsertAssetsCommand } from './commands/assets/insert-assets-to-db'
 import { ConfigModule } from '@nestjs/config'
 import config from './modules/config/config'
+import { BalanceModule } from './modules/balance/balance.modulet'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import config from './modules/config/config'
     CommandModule,
     Cache,
     PoolModule,
+    BalanceModule,
   ],
   providers: [InsertAssetsCommand],
 })
