@@ -1,6 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common'
 import { AssetService } from './asset.service'
-import { Asset } from './entities/asset.entity'
+import { PoolAsset } from './entities/pool-asset.entity'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { ASSET_KEYS } from './cache-keys/asset.cache-keys'
@@ -14,25 +14,13 @@ export class AssetController {
   ) {}
 
   @Get()
-  async getAssets(): Promise<Asset[]> {
-    const assetsFromCache = await this.cacheManager.get<Asset[]>(ASSET_KEYS.assets)
+  async getAssetsFromDb(): Promise<PoolAsset[]> {
+    const assetsFromCache = await this.cacheManager.get<PoolAsset[]>(ASSET_KEYS.assets)
 
     if (assetsFromCache) {
       return assetsFromCache
     }
-    const assets = await this.assetService.getAssets()
-    this.cacheManager.set(ASSET_KEYS.assets, assets, CACHE_TIME.hour)
-    return assets
-  }
-
-  @Get('/db')
-  async getAssetsFromDb(): Promise<Asset[]> {
-    const assetsFromCache = await this.cacheManager.get<Asset[]>(ASSET_KEYS.assets)
-
-    if (assetsFromCache) {
-      return assetsFromCache
-    }
-    const assets = await this.assetService.getAssets()
+    const assets = await this.assetService.getAssetsFromDb()
     this.cacheManager.set(ASSET_KEYS.assets, assets, CACHE_TIME.hour)
     return assets
   }

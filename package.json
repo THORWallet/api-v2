@@ -27,6 +27,8 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.12",
     "@nestjs/typeorm": "^10.0.0",
+    "@xchainjs/xchain-crypto": "^0.3.0",
+    "@xchainjs/xchain-util": "^0.13.2",
     "axios": "^1.5.1",
     "cache-manager": "^5.2.3",
     "cache-manager-redis-store": "^3.0.1",

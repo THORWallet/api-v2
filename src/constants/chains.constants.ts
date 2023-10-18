@@ -11,8 +11,8 @@ export enum Chain {
   Doge = 'DOGE',
   Bsc = 'BSC',
   Dash = 'DASH',
-  Kujira = 'KUJIRA',
-  Maya = 'Maya',
+  Kuji = 'KUJI',
+  Maya = 'MAYA',
 }
 
 export const supportedChains: Chain[] = [
@@ -28,9 +28,24 @@ export const supportedChains: Chain[] = [
   Chain.Cosmos,
   Chain.Maya,
   Chain.Dash,
-  Chain.Kujira,
+  Chain.Kuji,
   Chain.Bsc,
 ]
+
+export type SupportedChains =
+  | Chain.Ethereum
+  | Chain.THORChain
+  | Chain.Bitcoin
+  | Chain.BitcoinCash
+  | Chain.Litecoin
+  | Chain.Binance
+  | Chain.Doge
+  | Chain.Cosmos
+  | Chain.Avalanche
+  | Chain.Kuji
+  | Chain.Bsc
+  | Chain.Maya
+  | Chain.Dash
 
 export const chainNameMapping: Record<Chain, string> = {
   AVAX: 'Avalanche',
@@ -45,6 +60,6 @@ export const chainNameMapping: Record<Chain, string> = {
   DOGE: 'Doge',
   BSC: 'Bsc',
   DASH: 'Dash',
-  KUJIRA: 'Kujira',
-  Maya: 'Maya',
+  KUJI: 'Kujira',
+  MAYA: 'Maya',
 }

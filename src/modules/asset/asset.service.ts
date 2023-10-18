@@ -1,55 +1,47 @@
 import { Injectable } from '@nestjs/common'
-import { Asset } from './entities/asset.entity'
+import { assetFromString } from '@xchainjs/xchain-util'
+import { PoolAsset } from './entities/pool-asset.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import axios from 'axios'
 import { PoolDetail } from '../pool/types/pool.types'
-import { tickers, tokens } from '../../constants'
+import { Chain, tickers } from '../../constants'
+import { getDecimalsByAsset } from './asset.helpers'
 
 @Injectable()
 export class AssetService {
   constructor(
-    @InjectRepository(Asset)
-    private assetRepository: Repository<Asset>,
+    @InjectRepository(PoolAsset)
+    private poolAssetRepository: Repository<PoolAsset>,
   ) {}
 
-  async getPoolAssets(): Promise<Asset[]> {
+  async getPoolAssets(): Promise<any[]> {
     const { data: thorchainPools } = await axios.get<PoolDetail[]>('https://midgard.thorwallet.org/v2/pools')
-    const poolsAsAssets: Asset[] = thorchainPools.map((pool) => {
-      const [chain, ticker] = pool.asset.split('.')
-      const [tickerName, contractAddress] = ticker.split('-')
+    const poolsAsAssets = thorchainPools.map((pool) => {
+      const poolAsset = assetFromString(pool.asset)
+      const { chain, ticker, symbol } = poolAsset
+      const [tickerName, contractAddress] = symbol.split('-')
       const tickerData = tickers.find((t) => t.ticker === tickerName)
-
+      const decimals = getDecimalsByAsset(poolAsset, contractAddress)
       return {
         id: 1,
         chain,
         ticker,
         icon: tickerData?.icon || '',
         name: tickerData?.name || '',
-        decimals: 0,
-        contractAddress: contractAddress || '',
+        decimals,
+        contractAddress: chain === Chain.Avalanche || chain === Chain.Ethereum ? contractAddress || '' : '',
       }
     })
 
-    const assetFromTokens: Asset[] = tokens.map(({ chain, contractAddress, decimals, icon, name, ticker }) => ({
-      chain,
-      contractAddress,
-      decimals,
-      icon,
-      name,
-      ticker,
-      id: 1,
-    }))
-
-    const poolsWithTokens: Asset[] = [...poolsAsAssets, ...assetFromTokens]
-    return poolsWithTokens
+    return poolsAsAssets
   }
 
-  getAssets(): Promise<Asset[]> {
+  getAssets(): Promise<PoolAsset[]> {
     return this.getPoolAssets()
   }
 
-  getAssetsFromDb(): Promise<Asset[]> {
-    return this.assetRepository.find()
+  getAssetsFromDb(): Promise<PoolAsset[]> {
+    return this.poolAssetRepository.find()
   }
 }

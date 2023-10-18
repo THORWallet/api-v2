@@ -1,7 +1,7 @@
 import { Command } from 'nestjs-command'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Asset } from '../../modules/asset/entities/asset.entity'
+import { PoolAsset } from '../../modules/asset/entities/pool-asset.entity'
 import { Repository } from 'typeorm'
 import { TickerMap, Token } from './types'
 import axios from 'axios'
@@ -11,7 +11,7 @@ import { ecosystems } from './helpers/helpers'
 @Injectable()
 export class GenerateAssetsCommand {
   // private limit = pLimit(1)
-  constructor(@InjectRepository(Asset) private assetRepository: Repository<Asset>) {}
+  constructor(@InjectRepository(PoolAsset) private assetRepository: Repository<PoolAsset>) {}
 
   getTop2000Assets = async () => {
     const tickers: TickerMap[] = []

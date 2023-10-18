@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
 @Entity()
-export class Asset {
+export class PoolAsset {
   @PrimaryGeneratedColumn()
   id: number
 
@@ -11,10 +11,10 @@ export class Asset {
   @Column()
   ticker: string
 
-  @Column()
+  @Column({ nullable: true })
   icon: string
 
-  @Column()
+  @Column({ nullable: true })
   name: string
 
   @Column({ nullable: true })
