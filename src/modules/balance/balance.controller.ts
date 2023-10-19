@@ -149,4 +149,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.dogeCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('dash/:address')
+  @ApiOperation({
+    summary: 'Get dash balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async dashBalance(@Param('address') address: string): Promise<Balance> {
+    const balances = await this.balanceService.getDashBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.dashCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('dash/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached dash balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async dashCachedBalance(@Param('address') address: string): Promise<Balance> {
+    const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.dashCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getDashBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.dashCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }

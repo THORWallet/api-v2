@@ -17,6 +17,7 @@ import {
 
 export const AssetAVAX = { chain: Chain.Avalanche, symbol: 'AVAX', ticker: 'AVAX', synth: false }
 export const AssetBSC = { chain: Chain.Bsc, symbol: 'BNB', ticker: 'BNB', synth: false }
+export const AssetRuneNative = { chain: Chain.THORChain, symbol: 'RUNE', ticker: 'RUNE', synth: false }
 
 export const assetEqualsAsset = (assetOne: Asset, assetTwo: Asset): boolean => {
   return assetEqualsPoolAsset(assetOne, assetTwo) && assetOne.synth === assetTwo.synth

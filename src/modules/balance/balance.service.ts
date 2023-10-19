@@ -5,6 +5,8 @@ import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util
 import {
   BCH_DECIMAL,
   BTC_DECIMAL,
+  DASH_DECIMAL,
+  DOGE_DECIMAL,
   ETH_DECIMAL,
   LTC_DECIMAL,
   chainIds,
@@ -102,7 +104,7 @@ export class BalanceService {
     )
 
     const addressData = data.data[address]
-    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BTC_DECIMAL), BTC_DECIMAL)
+    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BCH_DECIMAL), BCH_DECIMAL)
     const raw = assetToBase(confirmed)
     const usdPrice = data.context.market_price_usd
 
@@ -128,7 +130,7 @@ export class BalanceService {
     )
 
     const addressData = data.data[address]
-    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BTC_DECIMAL), BTC_DECIMAL)
+    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** LTC_DECIMAL), LTC_DECIMAL)
     const raw = assetToBase(confirmed)
     const usdPrice = data.context.market_price_usd
 
@@ -154,7 +156,7 @@ export class BalanceService {
     )
 
     const addressData = data.data[address]
-    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BTC_DECIMAL), BTC_DECIMAL)
+    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** DOGE_DECIMAL), DOGE_DECIMAL)
     const raw = assetToBase(confirmed)
     const usdPrice = data.context.market_price_usd
 
@@ -164,7 +166,33 @@ export class BalanceService {
         ticker: 'DOGE',
         icon: nativeChainAssetIcons.DOGE,
         name: 'Dogecoin',
-        decimals: BTC_DECIMAL,
+        decimals: DOGE_DECIMAL,
+        usdPrice,
+      },
+      amount: confirmed.amount().toString(),
+      rawAmount: raw.amount().toString(),
+    }
+  }
+
+  getDashBalanceForAddress = async (address: string): Promise<Balance> => {
+    const { data } = await axios.get(
+      this.configService.get('BLOCKCHAIR_URL') +
+        '/dash' +
+        `/dashboards/address/${address}?key=${this.configService.get('BLOCKCHAIR_KEY')}`,
+    )
+
+    const addressData = data.data[address]
+    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** DASH_DECIMAL), DASH_DECIMAL)
+    const raw = assetToBase(confirmed)
+    const usdPrice = data.context.market_price_usd
+
+    return {
+      asset: {
+        chain: 'DASH',
+        ticker: 'DASH',
+        icon: nativeChainAssetIcons.DASH,
+        name: 'Dash',
+        decimals: DASH_DECIMAL,
         usdPrice,
       },
       amount: confirmed.amount().toString(),

@@ -4,7 +4,7 @@ import { PoolAsset } from './entities/pool-asset.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { PoolDetail } from '../pool/types/pool.types'
-import { Chain, tickers } from '../../constants'
+import { Chain, RUNE_DECIMAL, nativeChainAssetIcons, tickers } from '../../constants'
 import { getDecimalsByAsset } from './asset.helpers'
 import { HttpService } from '@nestjs/axios'
 
@@ -34,8 +34,15 @@ export class AssetService {
         contractAddress: chain === Chain.Avalanche || chain === Chain.Ethereum ? contractAddress || '' : '',
       }
     })
-
-    return poolsAsAssets
+    const runeAsset = {
+      id: 2,
+      chain: Chain.THORChain,
+      ticker: 'RUNE',
+      icon: nativeChainAssetIcons.THOR,
+      name: 'THORChain',
+      decimals: RUNE_DECIMAL,
+    }
+    return [runeAsset, ...poolsAsAssets]
   }
 
   getAssets(): Promise<PoolAsset[]> {
