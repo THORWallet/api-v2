@@ -95,4 +95,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.bchCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('ltc/:address')
+  @ApiOperation({
+    summary: 'Get ltc balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async ltcBalance(@Param('address') address: string): Promise<Balance> {
+    const balances = await this.balanceService.getLtcBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.ltcCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('ltc/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached ltc balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async ltcCachedBalance(@Param('address') address: string): Promise<Balance> {
+    const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.ltcCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getLtcBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.ltcCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }
