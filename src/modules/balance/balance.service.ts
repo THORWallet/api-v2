@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { Balance } from './types/balance'
-import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util'
+import { assetAmount, assetFromString, assetToBase, baseAmount } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
   BTC_DECIMAL,
@@ -9,19 +9,28 @@ import {
   DOGE_DECIMAL,
   ETH_DECIMAL,
   LTC_DECIMAL,
+  THORCHAIN_DECIMAL,
   chainIds,
   nativeChainAssetIcons,
+  runeDenom,
   tickers,
 } from '../../constants'
 import axios from 'axios'
 import { ConfigService } from '@nestjs/config'
 import BigNumber from 'bignumber.js'
+import { NodeInfoResponse } from '../api/types/thornode.types'
+import { cosmosclient, proto, rest } from '@cosmos-client/core'
+import { PoolService } from '../pool/pool.service'
+import { AssetRuneNative } from '../asset/asset.helpers'
+import { StatsService } from '../stats/stats.service'
 
 @Injectable()
 export class BalanceService {
   constructor(
     private readonly ethplorereApi: HttpService,
     private readonly configService: ConfigService,
+    private readonly tcPoolsService: PoolService,
+    private readonly statsService: StatsService,
   ) {}
 
   getBalancesForEthAddress = async (address: string): Promise<Balance[]> => {
@@ -198,5 +207,81 @@ export class BalanceService {
       amount: confirmed.amount().toString(),
       rawAmount: raw.amount().toString(),
     }
+  }
+
+  getTcChainId = async (): Promise<string> => {
+    const nodeUrl = this.configService.get('THORNODE_URL')
+    const { data } = await axios.get<NodeInfoResponse>(`${nodeUrl}/cosmos/base/tendermint/v1beta1/node_info`)
+    return data?.default_node_info?.network || Promise.reject(new Error('Could not parse chain id'))
+  }
+
+  getSdkBalance = async ({
+    address,
+    server,
+    chainId,
+    prefix,
+  }: {
+    address: string
+    server: string
+    chainId: string
+    prefix: string
+  }): Promise<proto.cosmos.base.v1beta1.Coin[]> => {
+    cosmosclient.config.setBech32Prefix({
+      accAddr: prefix,
+      accPub: prefix + 'pub',
+      valAddr: prefix + 'valoper',
+      valPub: prefix + 'valoperpub',
+      consAddr: prefix + 'valcons',
+      consPub: prefix + 'valconspub',
+    })
+
+    const accAddress = cosmosclient.AccAddress.fromString(address)
+    const sdk = new cosmosclient.CosmosSDK(server, chainId)
+
+    const response = await rest.bank.allBalances(sdk, accAddress)
+    return response.data.balances as proto.cosmos.base.v1beta1.Coin[]
+  }
+
+  getThorchainBalanceForAddress = async (address: string): Promise<any> => {
+    const networkId = await this.getTcChainId()
+    const balances = await this.getSdkBalance({
+      address,
+      server: this.configService.get('THORNODE_URL'),
+      chainId: networkId,
+      prefix: 'thor',
+    })
+
+    const pools = await this.tcPoolsService.getThorchainMidgardPools()
+    const tcStats = await this.statsService.getTcStats()
+
+    const assets = balances.map((balance) => {
+      const { denom: _denom, amount } = balance
+      const denom = _denom.toUpperCase()
+      const asset = _denom === runeDenom ? AssetRuneNative : assetFromString(denom)
+
+      const [tickerName] = asset.symbol.split('-')
+      const tickerData = tickers.find((t) => t.ticker === tickerName)
+
+      const assetPrice =
+        denom === runeDenom
+          ? tcStats.runePriceUSD
+          : pools.find((p) => p.asset === `${denom.replace('/', '.').toUpperCase()}`)?.assetPriceUSD || ''
+
+      return {
+        asset: {
+          chain: asset?.chain,
+          ticker: asset?.ticker,
+          icon: tickerData?.icon || '',
+          name: tickerData?.name || '',
+          decimals: THORCHAIN_DECIMAL,
+          usdPrice: assetPrice,
+          isSynthetic: true,
+        },
+        amount: new BigNumber(amount).div(10 ** THORCHAIN_DECIMAL).toString(),
+        rawAmount: amount,
+      }
+    })
+
+    return assets
   }
 }

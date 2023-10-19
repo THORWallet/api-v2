@@ -94,3 +94,5 @@ export const nativeChainAssetIcons: Record<Chain, string> = {
   KUJI: '',
   MAYA: '',
 }
+
+export const runeDenom = 'rune'

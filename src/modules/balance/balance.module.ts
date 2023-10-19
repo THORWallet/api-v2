@@ -3,6 +3,8 @@ import { BalanceController } from './balance.controller'
 import { BalanceService } from './balance.service'
 import { HttpModule } from '@nestjs/axios'
 import { EthplorerHttpConfigService } from '../api/ethplorer-api.service'
+import { PoolService } from '../pool/pool.service'
+import { StatsService } from '../stats/stats.service'
 
 @Module({
   imports: [
@@ -10,7 +12,7 @@ import { EthplorerHttpConfigService } from '../api/ethplorer-api.service'
       useClass: EthplorerHttpConfigService,
     }),
   ],
-  providers: [BalanceService],
+  providers: [BalanceService, PoolService, StatsService],
   controllers: [BalanceController],
   exports: [],
 })

@@ -10,6 +10,7 @@ import config from './modules/config/config'
 import { BalanceModule } from './modules/balance/balance.module'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { CACHE_TIME } from './constants'
+import { StatsModule } from './modules/stats/stats.module'
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CACHE_TIME } from './constants'
     Cache,
     PoolModule,
     BalanceModule,
+    StatsModule,
   ],
   providers: [InsertAssetsCommand],
 })

@@ -176,4 +176,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.dashCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('thorchain/:address')
+  @ApiOperation({
+    summary: 'Get thorchain balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async thorchainBalance(@Param('address') address: string): Promise<Balance> {
+    const balances = await this.balanceService.getThorchainBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.thorchainCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('thorchain/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached thorchain balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async thorchainCachedBalance(@Param('address') address: string): Promise<Balance> {
+    const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.thorchainCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getThorchainBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.thorchainCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }

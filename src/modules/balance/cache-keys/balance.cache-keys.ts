@@ -5,4 +5,5 @@ export const BALANCE_KEYS = {
   ltcCache: (address: string) => `ltc-cache-${address}`,
   dogeCache: (address: string) => `doge-cache-${address}`,
   dashCache: (address: string) => `dash-cache-${address}`,
+  thorchainCache: (address: string) => `thorchain-cache-${address}`,
 }

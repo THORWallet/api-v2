@@ -24,6 +24,9 @@ export class BalanceAsset {
 
   @ApiProperty({ description: 'The USD price of the asset', type: String, required: false })
   usdPrice?: string
+
+  @ApiProperty({ description: 'The asset is a synthetic', type: Boolean, required: false })
+  isSynthetic?: boolean
 }
 
 export class Balance {
