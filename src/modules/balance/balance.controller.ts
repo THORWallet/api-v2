@@ -122,4 +122,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.ltcCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('doge/:address')
+  @ApiOperation({
+    summary: 'Get doge balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async dogeBalance(@Param('address') address: string): Promise<Balance> {
+    const balances = await this.balanceService.getDogeBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.dogeCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('doge/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached doge balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async dogeCachedBalance(@Param('address') address: string): Promise<Balance> {
+    const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.dogeCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getDogeBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.dogeCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }

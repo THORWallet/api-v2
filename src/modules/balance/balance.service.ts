@@ -145,4 +145,30 @@ export class BalanceService {
       rawAmount: raw.amount().toString(),
     }
   }
+
+  getDogeBalanceForAddress = async (address: string): Promise<Balance> => {
+    const { data } = await axios.get(
+      this.configService.get('BLOCKCHAIR_URL') +
+        '/dogecoin' +
+        `/dashboards/address/${address}?key=${this.configService.get('BLOCKCHAIR_KEY')}`,
+    )
+
+    const addressData = data.data[address]
+    const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BTC_DECIMAL), BTC_DECIMAL)
+    const raw = assetToBase(confirmed)
+    const usdPrice = data.context.market_price_usd
+
+    return {
+      asset: {
+        chain: 'DOGE',
+        ticker: 'DOGE',
+        icon: nativeChainAssetIcons.DOGE,
+        name: 'Dogecoin',
+        decimals: BTC_DECIMAL,
+        usdPrice,
+      },
+      amount: confirmed.amount().toString(),
+      rawAmount: raw.amount().toString(),
+    }
+  }
 }
