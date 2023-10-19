@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { Balance } from './types/balance'
 import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util'
-import { BTC_DECIMAL, ETH_DECIMAL } from '../../constants'
+import { BTC_DECIMAL, ETH_DECIMAL, chainIds, nativeChainAssetIcons, tickers } from '../../constants'
 import axios from 'axios'
 import { ConfigService } from '@nestjs/config'
 import BigNumber from 'bignumber.js'
@@ -17,24 +17,46 @@ export class BalanceService {
   getBalancesForEthAddress = async (address: string): Promise<Balance[]> => {
     const { data } = await this.ethplorereApi.axiosRef.get(`getAddressInfo/${address}`)
     const {
-      ETH: { balance, rawBalance },
+      ETH: { balance, rawBalance, price },
       tokens,
     } = data
 
     const ethBalance: Balance = {
-      asset: assetFromString('ETH.ETH'),
+      asset: {
+        chain: 'ETH',
+        ticker: 'ETH',
+        icon: nativeChainAssetIcons.ETH,
+        name: 'Ethereum',
+        decimals: ETH_DECIMAL,
+        contractAddress: '',
+        usdPrice: price?.rate || '',
+        chainId: chainIds.Ethereum,
+      },
       amount: balance,
       rawAmount: rawBalance,
-      decimals: ETH_DECIMAL,
     }
-    const tokenBalances = tokens.map(({ tokenInfo, balance, rawBalance }) => {
-      return {
-        asset: assetFromString(`ETH.${tokenInfo.symbol}-${tokenInfo.address}`),
-        balance: balance,
-        rawAmount: rawBalance,
-        decimals: parseInt(tokenInfo.decimals),
-      }
-    })
+    const tokenBalances: Balance[] = tokens
+      .filter(({ tokenInfo }) => assetFromString(`ETH.${tokenInfo.symbol}-${tokenInfo.address}`))
+      .map(({ tokenInfo, balance, rawBalance }) => {
+        const { chain, ticker, symbol } = assetFromString(`ETH.${tokenInfo.symbol}-${tokenInfo.address}`)
+        const [tickerName] = symbol.split('-')
+        const tickerData = tickers.find((t) => t.ticker === tickerName)
+
+        return {
+          asset: {
+            chain,
+            ticker,
+            icon: tickerData?.icon || '',
+            name: tickerData?.name || '',
+            decimals: tokenInfo.decimals,
+            contractAddress: tokenInfo.address,
+            usdPrice: tokenInfo.price?.rate || '',
+            chainId: chainIds.Ethereum,
+          },
+          amount: new BigNumber(balance).div(10 ** tokenInfo.decimals).toString(),
+          rawAmount: rawBalance,
+        }
+      })
     return [ethBalance, ...tokenBalances]
   }
 
@@ -44,17 +66,23 @@ export class BalanceService {
         '/bitcoin' +
         `/dashboards/address/${address}?key=${this.configService.get('BLOCKCHAIR_KEY')}`,
     )
-    console.log({ data })
+
     const addressData = data.data[address]
     const confirmed = assetAmount(new BigNumber(addressData.address.balance).div(10 ** BTC_DECIMAL), BTC_DECIMAL)
     const raw = assetToBase(confirmed)
-    console.log({ confirmed: confirmed.amount().toString() })
+    const usdPrice = data.context.market_price_usd
 
     return {
-      asset: assetFromString('BTC.BTC'),
+      asset: {
+        chain: 'BTC',
+        ticker: 'BTC',
+        icon: nativeChainAssetIcons.BTC,
+        name: 'Bitcoin',
+        decimals: BTC_DECIMAL,
+        usdPrice,
+      },
       amount: confirmed.amount().toString(),
       rawAmount: raw.amount().toString(),
-      decimals: BTC_DECIMAL,
     }
   }
 }
