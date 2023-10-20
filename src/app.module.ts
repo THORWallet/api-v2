@@ -11,6 +11,7 @@ import { BalanceModule } from './modules/balance/balance.module'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { CACHE_TIME } from './constants'
 import { StatsModule } from './modules/stats/stats.module'
+import { PriceModule } from './modules/price/price.module'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { StatsModule } from './modules/stats/stats.module'
     PoolModule,
     BalanceModule,
     StatsModule,
+    PriceModule,
   ],
   providers: [InsertAssetsCommand],
 })

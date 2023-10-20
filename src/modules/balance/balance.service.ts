@@ -1,9 +1,11 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
-import { Balance } from './types/balance'
-import { assetAmount, assetFromString, assetToBase, baseAmount } from '@xchainjs/xchain-util'
+import { BncClient } from '@binance-chain/javascript-sdk/lib/client'
+import { Balance, BnbBalance } from './types/balance'
+import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
+  BNB_DECIMAL,
   BTC_DECIMAL,
   DASH_DECIMAL,
   DOGE_DECIMAL,
@@ -23,6 +25,7 @@ import { cosmosclient, proto, rest } from '@cosmos-client/core'
 import { PoolService } from '../pool/pool.service'
 import { AssetRuneNative } from '../asset/asset.helpers'
 import { StatsService } from '../stats/stats.service'
+import { PriceService } from '../price/price.service'
 
 @Injectable()
 export class BalanceService {
@@ -31,6 +34,7 @@ export class BalanceService {
     private readonly configService: ConfigService,
     private readonly tcPoolsService: PoolService,
     private readonly statsService: StatsService,
+    private readonly priceService: PriceService,
   ) {}
 
   getBalancesForEthAddress = async (address: string): Promise<Balance[]> => {
@@ -44,6 +48,7 @@ export class BalanceService {
       asset: {
         chain: 'ETH',
         ticker: 'ETH',
+        symbol: 'ETH',
         icon: nativeChainAssetIcons.ETH,
         name: 'Ethereum',
         decimals: ETH_DECIMAL,
@@ -67,6 +72,7 @@ export class BalanceService {
             ticker,
             icon: tickerData?.icon || '',
             name: tickerData?.name || '',
+            symbol,
             decimals: tokenInfo.decimals,
             contractAddress: tokenInfo.address,
             usdPrice: tokenInfo.price?.rate || '',
@@ -95,6 +101,7 @@ export class BalanceService {
       asset: {
         chain: 'BTC',
         ticker: 'BTC',
+        symbol: 'BTC',
         icon: nativeChainAssetIcons.BTC,
         name: 'Bitcoin',
         decimals: BTC_DECIMAL,
@@ -121,6 +128,7 @@ export class BalanceService {
       asset: {
         chain: 'BCH',
         ticker: 'BCH',
+        symbol: 'BCH',
         icon: nativeChainAssetIcons.BCH,
         name: 'Bitcoin Cash',
         decimals: BCH_DECIMAL,
@@ -147,6 +155,7 @@ export class BalanceService {
       asset: {
         chain: 'LTC',
         ticker: 'LTC',
+        symbol: 'LTC',
         icon: nativeChainAssetIcons.LTC,
         name: 'Litecoin',
         decimals: LTC_DECIMAL,
@@ -173,6 +182,7 @@ export class BalanceService {
       asset: {
         chain: 'DOGE',
         ticker: 'DOGE',
+        symbol: 'DOGE',
         icon: nativeChainAssetIcons.DOGE,
         name: 'Dogecoin',
         decimals: DOGE_DECIMAL,
@@ -199,6 +209,7 @@ export class BalanceService {
       asset: {
         chain: 'DASH',
         ticker: 'DASH',
+        symbol: 'DASH',
         icon: nativeChainAssetIcons.DASH,
         name: 'Dash',
         decimals: DASH_DECIMAL,
@@ -271,6 +282,7 @@ export class BalanceService {
         asset: {
           chain: asset?.chain,
           ticker: asset?.ticker,
+          symbol: asset?.symbol,
           icon: tickerData?.icon || '',
           name: tickerData?.name || '',
           decimals: THORCHAIN_DECIMAL,
@@ -283,5 +295,35 @@ export class BalanceService {
     })
 
     return assets
+  }
+
+  getBnbBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const client = new BncClient(this.configService.get('BNB_CLIENT_URL'))
+    const rawBalances: BnbBalance[] = await client.getBalance(address)
+    const usdPrices = await this.priceService.fetchPricesFromCoingecko(
+      rawBalances.map((balance) => assetFromString(`BNB.${balance.symbol}`)),
+    )
+
+    const balances = rawBalances.map((balance) => {
+      const asset = assetFromString(`BNB.${balance.symbol}`)
+      const [tickerName] = asset.symbol.split('-')
+      const tickerData = tickers.find((t) => t.ticker === tickerName)
+
+      return {
+        asset: {
+          chain: asset?.chain,
+          ticker: asset.ticker,
+          symbol: asset.symbol,
+          icon: tickerData?.icon || '',
+          name: tickerData?.name || '',
+          decimals: BNB_DECIMAL,
+          usdPrice: usdPrices[asset.ticker] ? usdPrices[asset.ticker].toString() : '',
+        },
+        amount: balance.free,
+        rawAmount: balance.free,
+      }
+    })
+
+    return balances
   }
 }

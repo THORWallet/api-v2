@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@binance-chain/javascript-sdk": "^4.2.1",
     "@cosmos-client/core": "^0.44.4",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/cache-manager": "^2.1.0",

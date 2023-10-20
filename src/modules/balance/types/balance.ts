@@ -7,6 +7,9 @@ export class BalanceAsset {
   @ApiProperty({ description: 'The ticker symbol for the asset', type: String })
   ticker: string
 
+  @ApiProperty({ description: 'The symbol for the asset', type: String })
+  symbol?: string
+
   @ApiProperty({ description: 'URL for the asset icon', type: String, required: false })
   icon: string
 
@@ -38,4 +41,23 @@ export class Balance {
 
   @ApiProperty({ description: 'The amount of the asset', type: String })
   rawAmount: string
+}
+
+export type BnbBalance = {
+  /**
+   * asset symbol, e.g. BNB
+   */
+  symbol: string
+  /**
+   * In decimal form, e.g. 0.00000000
+   */
+  free: string
+  /**
+   * In decimal form, e.g. 0.00000000
+   */
+  locked: string
+  /**
+   * In decimal form, e.g. 0.00000000
+   */
+  frozen: string
 }
