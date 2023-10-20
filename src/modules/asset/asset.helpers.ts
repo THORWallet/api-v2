@@ -18,6 +18,29 @@ import {
 export const AssetAVAX = { chain: Chain.Avalanche, symbol: 'AVAX', ticker: 'AVAX', synth: false }
 export const AssetBSC = { chain: Chain.Bsc, symbol: 'BNB', ticker: 'BNB', synth: false }
 export const AssetRuneNative = { chain: Chain.THORChain, symbol: 'RUNE', ticker: 'RUNE', synth: false }
+export const AssetAtom: Asset = {
+  chain: Chain.Cosmos,
+  symbol: 'ATOM',
+  ticker: 'ATOM',
+  synth: false,
+}
+
+export const getCosmosAssetFromDenom = (denom: string): Asset | null => {
+  if (denom === 'uatom') return AssetAtom
+  // IBC assets
+  if (denom.startsWith('ibc/'))
+    // Note: Don't use `assetFromString` here, it will interpret `/` as synth
+    return {
+      chain: Chain.Cosmos,
+      symbol: denom,
+      // TODO (xchain-contributors)
+      // Get readable ticker for IBC assets from denom #600 https://github.com/xchainjs/xchainjs-lib/issues/600
+      // At the meantime ticker will be empty
+      ticker: '',
+      synth: false,
+    }
+  return null
+}
 
 export const assetEqualsAsset = (assetOne: Asset, assetTwo: Asset): boolean => {
   return assetEqualsPoolAsset(assetOne, assetTwo) && assetOne.synth === assetTwo.synth
@@ -68,7 +91,7 @@ const supportedGetDecimals: {
   KUJI: () => KUJI_DECIMAL,
 }
 
-export const getDecimalsByAsset = (asset: Asset, contractAddress?: string): Promise<number> => {
+export const getDecimalsByAsset = (asset: Asset, contractAddress?: string): number => {
   const chain = asset.synth ? Chain.THORChain : asset.chain
   return supportedGetDecimals[chain](asset, contractAddress)
 }

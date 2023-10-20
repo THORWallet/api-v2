@@ -25,7 +25,7 @@ import {
 import { NodeInfoResponse } from '../api/types/thornode.types'
 import { cosmosclient, proto, rest } from '@cosmos-client/core'
 import { PoolService } from '../pool/pool.service'
-import { AssetRuneNative } from '../asset/asset.helpers'
+import { AssetRuneNative, getCosmosAssetFromDenom, getDecimalsByAsset } from '../asset/asset.helpers'
 import { StatsService } from '../stats/stats.service'
 import { PriceService } from '../price/price.service'
 
@@ -387,5 +387,42 @@ export class BalanceService {
     })
 
     return balances
+  }
+
+  getCosmosBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const balances = await this.getSdkBalance({
+      address,
+      server: this.configService.get('COSMOS_SERVER_URL'),
+      chainId: 'cosmoshub-4',
+      prefix: 'cosmos',
+    })
+
+    const assetPrices = await this.priceService.fetchPricesFromCoingecko(
+      balances.map((balance) => getCosmosAssetFromDenom(balance.denom)),
+    )
+
+    const assets = balances.map((balance) => {
+      const { denom, amount } = balance
+      const asset = getCosmosAssetFromDenom(denom)
+      const [tickerName] = asset.symbol.split('-')
+      const tickerData = tickers.find((t) => t.ticker === tickerName)
+      const decimals = getDecimalsByAsset(asset)
+      return {
+        asset: {
+          chain: asset?.chain,
+          ticker: asset?.ticker,
+          symbol: asset?.symbol,
+          icon: tickerData?.icon || '',
+          name: tickerData?.name || '',
+          decimals,
+          usdPrice: assetPrices[asset.ticker] ? assetPrices[asset.ticker].toString() : '',
+          isSynthetic: true,
+        },
+        amount: new BigNumber(amount).div(10 ** decimals).toString(),
+        rawAmount: amount,
+      }
+    })
+
+    return assets
   }
 }

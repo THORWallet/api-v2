@@ -284,4 +284,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.avalancheCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('cosmos/:address')
+  @ApiOperation({
+    summary: 'Get cosmos balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async cosmosBalance(@Param('address') address: string): Promise<Balance[]> {
+    const balances = await this.balanceService.getCosmosBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.cosmosCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('cosmos/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached cosmos balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async cosmosCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.cosmosCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getCosmosBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.cosmosCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }
