@@ -230,4 +230,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.bnbCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('bsc/:address')
+  @ApiOperation({
+    summary: 'Get bsc balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async bscBalance(@Param('address') address: string): Promise<Balance[]> {
+    const balances = await this.balanceService.getBscBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.bscCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('bsc/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached bsc balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async bscCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.bscCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getBscBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.bscCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }

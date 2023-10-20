@@ -1,12 +1,17 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { BalancesResponse, CovalentClient } from '@covalenthq/client-sdk'
 import { BncClient } from '@binance-chain/javascript-sdk/lib/client'
+import BigNumber from 'bignumber.js'
+import axios from 'axios'
 import { Balance, BnbBalance } from './types/balance'
 import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
   BNB_DECIMAL,
   BTC_DECIMAL,
+  Chain,
   DASH_DECIMAL,
   DOGE_DECIMAL,
   ETH_DECIMAL,
@@ -17,9 +22,6 @@ import {
   runeDenom,
   tickers,
 } from '../../constants'
-import axios from 'axios'
-import { ConfigService } from '@nestjs/config'
-import BigNumber from 'bignumber.js'
 import { NodeInfoResponse } from '../api/types/thornode.types'
 import { cosmosclient, proto, rest } from '@cosmos-client/core'
 import { PoolService } from '../pool/pool.service'
@@ -321,6 +323,36 @@ export class BalanceService {
         },
         amount: balance.free,
         rawAmount: balance.free,
+      }
+    })
+
+    return balances
+  }
+
+  getBscBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const covalentKey = this.configService.get('COVALENT_API_KEY')
+    const covalentApiUrl = this.configService.get('COVALENT_API_URL')
+
+    const { data: rawBalances } = await axios.get<{ data: BalancesResponse }>(
+      `${covalentApiUrl}/56/address/${address}/balances_v2/?key=${covalentKey}`,
+    )
+
+    const balances: Balance[] = rawBalances.data.items.map((balance) => {
+      const asset = assetFromString(`BSC.${balance.contract_ticker_symbol}`)
+
+      return {
+        asset: {
+          chain: Chain.Bsc,
+          ticker: asset.ticker,
+          symbol: asset.symbol,
+          icon: balance.logo_url,
+          name: balance.contract_name,
+          decimals: balance.contract_decimals,
+          usdPrice: balance.quote_rate?.toString() || '',
+          contractAddress: balance.contract_address,
+        },
+        amount: new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString(),
+        rawAmount: balance.balance.toString(),
       }
     })
 
