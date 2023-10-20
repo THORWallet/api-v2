@@ -258,7 +258,7 @@ export class BalanceController {
     return balances
   }
 
-  @Get('avalance/:address')
+  @Get('avalanche/:address')
   @ApiOperation({
     summary: 'Get avalanche balances',
   })
