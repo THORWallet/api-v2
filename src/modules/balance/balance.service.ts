@@ -358,4 +358,34 @@ export class BalanceService {
 
     return balances
   }
+
+  getAvalancheBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const covalentKey = this.configService.get('COVALENT_API_KEY')
+    const covalentApiUrl = this.configService.get('COVALENT_API_URL')
+
+    const { data: rawBalances } = await axios.get<{ data: BalancesResponse }>(
+      `${covalentApiUrl}/43114/address/${address}/balances_v2/?key=${covalentKey}`,
+    )
+
+    const balances: Balance[] = rawBalances.data.items.map((balance) => {
+      const asset = assetFromString(`AVAX.${balance.contract_ticker_symbol}`)
+
+      return {
+        asset: {
+          chain: Chain.Avalanche,
+          ticker: asset.ticker,
+          symbol: asset.symbol,
+          icon: balance.logo_url,
+          name: balance.contract_name,
+          decimals: balance.contract_decimals,
+          usdPrice: balance.quote_rate?.toString() || '',
+          contractAddress: balance.contract_address,
+        },
+        amount: new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString(),
+        rawAmount: balance.balance.toString(),
+      }
+    })
+
+    return balances
+  }
 }

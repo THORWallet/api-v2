@@ -8,4 +8,5 @@ export const BALANCE_KEYS = {
   thorchainCache: (address: string) => `thorchain-cache-${address}`,
   bnbCache: (address: string) => `bnb-cache-${address}`,
   bscCache: (address: string) => `bsc-cache-${address}`,
+  avalancheCache: (address: string) => `avalanche-cache-${address}`,
 }

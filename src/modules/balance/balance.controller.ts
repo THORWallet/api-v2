@@ -257,4 +257,31 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.bscCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('avalance/:address')
+  @ApiOperation({
+    summary: 'Get avalanche balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async avalancheBalance(@Param('address') address: string): Promise<Balance[]> {
+    const balances = await this.balanceService.getAvalancheBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.avalancheCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('avalanche/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached avalanche balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async avalancheCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.avalancheCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getAvalancheBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.avalancheCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }
