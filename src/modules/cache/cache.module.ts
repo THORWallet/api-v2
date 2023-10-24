@@ -1,19 +1,19 @@
 import { CacheModule } from '@nestjs/cache-manager'
-import { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
 import { Module } from '@nestjs/common'
-import * as dotenv from 'dotenv'
-dotenv.config()
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 @Module({
   imports: [
-    CacheModule.register<RedisClientOptions>({
-      store: redisStore,
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
       isGlobal: true,
-      socket: {
-        host: process.env.MODE === 'local' ? 'localhost' : process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT),
-      },
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('MODE') === 'local' ? 'localhost' : configService.get('REDIS_HOST'),
+        port: parseInt(configService.get<string>('REDIS_PORT')),
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
