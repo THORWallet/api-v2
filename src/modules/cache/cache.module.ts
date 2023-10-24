@@ -2,6 +2,8 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { RedisClientOptions } from 'redis'
 import { redisStore } from 'cache-manager-redis-yet'
 import { Module } from '@nestjs/common'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 @Module({
   imports: [
@@ -9,8 +11,8 @@ import { Module } from '@nestjs/common'
       store: redisStore,
       isGlobal: true,
       socket: {
-        host: 'localhost',
-        port: parseInt('6379'),
+        host: process.env.MODE === 'local' ? 'localhost' : process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
       },
     }),
   ],
