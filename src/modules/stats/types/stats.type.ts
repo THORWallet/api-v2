@@ -86,3 +86,10 @@ export class StatsData {
   })
   withdrawVolume: string
 }
+
+export class Stats {
+  @ApiProperty({ type: StatsData })
+  thorchain: StatsData
+  @ApiProperty({ type: StatsData })
+  maya: StatsData
+}

@@ -13,6 +13,7 @@ import {
   LTC_DECIMAL,
   RUNE_DECIMAL,
   SupportedChains,
+  cacaoDenom,
   erc20Decimals,
   kujiDenom,
   mayaDenom,
@@ -26,6 +27,20 @@ export const AssetAtom: Asset = {
   chain: Chain.Cosmos,
   symbol: 'ATOM',
   ticker: 'ATOM',
+  synth: false,
+}
+
+export const AssetMayaNative: Asset = {
+  chain: Chain.Maya,
+  symbol: 'MAYA',
+  ticker: 'MAYA',
+  synth: false,
+}
+
+export const AssetCacaoNative: Asset = {
+  chain: Chain.Maya,
+  symbol: 'CACAO',
+  ticker: 'CACAO',
   synth: false,
 }
 

@@ -15,17 +15,26 @@ export class PoolService {
   ) {}
 
   getThorchainMidgardPools = async (): Promise<PoolDetail[]> => {
-    try {
-      const tcMidgardPool = await this.cacheManager.get<PoolDetail[]>(POOL_KEYS.tcMidgardPool)
-      if (tcMidgardPool) {
-        return tcMidgardPool
-      }
-
-      const { data } = await axios.get<PoolDetail[]>(this.configService.get('PUBLIC_TC_MIDGARD_URL') + '/pools')
-      await this.cacheManager.set(POOL_KEYS.tcMidgardPool, data, CACHE_TIME.minute * 5)
-      return data
-    } catch (e) {
-      console.log(e)
+    const tcMidgardPool = await this.cacheManager.get<PoolDetail[]>(POOL_KEYS.tcMidgardPool)
+    if (tcMidgardPool) {
+      return tcMidgardPool
     }
+
+    const { data } = await axios.get<PoolDetail[]>(this.configService.get('PUBLIC_TC_MIDGARD_URL') + '/pools')
+    await this.cacheManager.set(POOL_KEYS.tcMidgardPool, data, CACHE_TIME.minute * 5)
+    return data
   }
+
+  getMayaMidgardPools = async (): Promise<PoolDetail[]> => {
+    const mayaMidgardPool = await this.cacheManager.get<PoolDetail[]>(POOL_KEYS.mayaMidgardPool)
+    if (mayaMidgardPool) {
+      return mayaMidgardPool
+    }
+
+    const { data } = await axios.get<PoolDetail[]>(this.configService.get('MAYA_MIDGARD_URL') + '/pools')
+    await this.cacheManager.set(POOL_KEYS.mayaMidgardPool, data, CACHE_TIME.minute * 5)
+    return data
+  }
+
+  
 }

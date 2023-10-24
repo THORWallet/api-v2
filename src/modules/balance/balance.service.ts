@@ -22,6 +22,10 @@ import {
   runeDenom,
   tickers,
   kujiTokens,
+  mayaDenom,
+  cacaoDenom,
+  MAYA_DECIMAL,
+  CACAO_DECIMAL,
 } from '../../constants'
 import { NodeInfoResponse } from '../api/types/thornode.types'
 import { cosmosclient, proto, rest } from '@cosmos-client/core'
@@ -231,6 +235,12 @@ export class BalanceService {
 
   getTcChainId = async (): Promise<string> => {
     const nodeUrl = this.configService.get('THORNODE_URL')
+    const { data } = await axios.get<NodeInfoResponse>(`${nodeUrl}/cosmos/base/tendermint/v1beta1/node_info`)
+    return data?.default_node_info?.network || Promise.reject(new Error('Could not parse chain id'))
+  }
+
+  getMayaChainId = async (): Promise<string> => {
+    const nodeUrl = this.configService.get('MAYANODE_URL')
     const { data } = await axios.get<NodeInfoResponse>(`${nodeUrl}/cosmos/base/tendermint/v1beta1/node_info`)
     return data?.default_node_info?.network || Promise.reject(new Error('Could not parse chain id'))
   }

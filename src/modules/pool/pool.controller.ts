@@ -13,7 +13,16 @@ export class PoolController {
     summary: 'Get tc pool details.',
   })
   @ApiResponse({ status: 200, description: 'Success', type: [PoolDetail] })
-  async pools() {
+  async getTcPools() {
     return this.poolService.getThorchainMidgardPools()
+  }
+
+  @Get('maya')
+  @ApiOperation({
+    summary: 'Get maya pool details.',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [PoolDetail] })
+  async getMayaPools() {
+    return this.poolService.getMayaMidgardPools()
   }
 }

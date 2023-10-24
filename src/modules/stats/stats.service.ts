@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { StatsData } from './types/stats.type'
+import { Stats, StatsData } from './types/stats.type'
 import { ConfigService } from '@nestjs/config'
 import axios from 'axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
@@ -26,5 +26,26 @@ export class StatsService {
     await this.cacheManager.set(STATS_KEYS.tcStats, data, CACHE_TIME.minute * 5)
 
     return data
+  }
+
+  async getMayaStats(): Promise<StatsData> {
+    const mayaStats = await this.cacheManager.get<StatsData>(STATS_KEYS.mayaStats)
+
+    if (mayaStats) {
+      return mayaStats
+    }
+
+    const { data } = await axios.get<StatsData>(this.configService.get('MAYA_MIDGARD_URL') + '/stats')
+
+    await this.cacheManager.set(STATS_KEYS.mayaStats, data, CACHE_TIME.minute * 5)
+
+    return data
+  }
+
+  async getStats(): Promise<Stats> {
+    return {
+      thorchain: await this.getTcStats(),
+      maya: await this.getMayaStats(),
+    }
   }
 }
