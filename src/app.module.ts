@@ -8,10 +8,11 @@ import { InsertAssetsCommand } from './commands/assets/insert-assets-to-db'
 import { ConfigModule } from '@nestjs/config'
 import config from './modules/config/config'
 import { BalanceModule } from './modules/balance/balance.module'
-import { ThrottlerModule } from '@nestjs/throttler'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { CACHE_TIME } from './constants'
 import { StatsModule } from './modules/stats/stats.module'
 import { PriceModule } from './modules/price/price.module'
+import { APP_GUARD } from '@nestjs/core'
 
 @Module({
   imports: [
@@ -35,6 +36,12 @@ import { PriceModule } from './modules/price/price.module'
     StatsModule,
     PriceModule,
   ],
-  providers: [InsertAssetsCommand],
+  providers: [
+    InsertAssetsCommand,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
