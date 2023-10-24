@@ -34,10 +34,12 @@ export class PriceService {
 
   fetchPricesFromCoingecko = async (assets: Asset[]): Promise<Record<string, number>> => {
     const mappedTickers = assets.map(({ ticker }) => this.mapTickerToCoinGeckoId(ticker)).join(',')
-    const cachedData = this.cacheManager.get<Record<string, number>>(PRICE_CACHE.coingeckoAssets(mappedTickers))
+
+    const cachedData = await this.cacheManager.get<Record<string, number>>(PRICE_CACHE.coingeckoAssets(mappedTickers))
     if (cachedData) {
       return cachedData
     }
+
     const { data } = await axios.get(
       `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${mappedTickers}&vs_currencies=usd`,
     )

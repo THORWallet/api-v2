@@ -311,4 +311,58 @@ export class BalanceController {
     await this.cacheManager.set(BALANCE_KEYS.cosmosCache(address), balances, CACHE_TIME.hour * 24)
     return balances
   }
+
+  @Get('maya/:address')
+  @ApiOperation({
+    summary: 'Get maya balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async mayaBalance(@Param('address') address: string): Promise<Balance[]> {
+    const balances = await this.balanceService.getMayaBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.mayaCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('maya/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached maya balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async mayaCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.mayaCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getMayaBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.mayaCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('kujira/:address')
+  @ApiOperation({
+    summary: 'Get kujira balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async kujiraBalance(@Param('address') address: string): Promise<Balance[]> {
+    const balances = await this.balanceService.getKujiraBalanceForAddress(address)
+
+    await this.cacheManager.set(BALANCE_KEYS.kujiraCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
+
+  @Get('kujira/cached/:address')
+  @ApiOperation({
+    summary: 'Get cached kujira balances',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  async kujiraCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.kujiraCache(address))
+    if (cachedBalances) {
+      return cachedBalances
+    }
+    const balances = await this.balanceService.getKujiraBalanceForAddress(address)
+    await this.cacheManager.set(BALANCE_KEYS.kujiraCache(address), balances, CACHE_TIME.hour * 24)
+    return balances
+  }
 }

@@ -10,4 +10,7 @@ export const BALANCE_KEYS = {
   bscCache: (address: string) => `bsc-cache-${address}`,
   avalancheCache: (address: string) => `avalanche-cache-${address}`,
   cosmosCache: (address: string) => `cosmos-cache-${address}`,
+  mayaCache: (address: string) => `maya-cache-${address}`,
+  tcCache: (address: string) => `tc-cache-${address}`,
+  kujiraCache: (address: string) => `kujira-cache-${address}`,
 }

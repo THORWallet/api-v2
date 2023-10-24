@@ -1,4 +1,5 @@
-import { Asset } from '@xchainjs/xchain-util'
+import { Asset, assetFromString } from '@xchainjs/xchain-util'
+import { Denom } from 'kujira.js'
 import {
   BCH_DECIMAL,
   BNB_DECIMAL,
@@ -13,11 +14,14 @@ import {
   RUNE_DECIMAL,
   SupportedChains,
   erc20Decimals,
+  kujiDenom,
+  mayaDenom,
 } from '../../constants'
 
 export const AssetAVAX = { chain: Chain.Avalanche, symbol: 'AVAX', ticker: 'AVAX', synth: false }
 export const AssetBSC = { chain: Chain.Bsc, symbol: 'BNB', ticker: 'BNB', synth: false }
 export const AssetRuneNative = { chain: Chain.THORChain, symbol: 'RUNE', ticker: 'RUNE', synth: false }
+const AssetKUJIRA = { chain: Chain.Kuji, symbol: 'KUJI', ticker: 'KUJI', synth: false }
 export const AssetAtom: Asset = {
   chain: Chain.Cosmos,
   symbol: 'ATOM',
@@ -40,6 +44,35 @@ export const getCosmosAssetFromDenom = (denom: string): Asset | null => {
       synth: false,
     }
   return null
+}
+
+export const getMayaAssetFromDenom = (denom: string): Asset => {
+  if (denom === mayaDenom) {
+    return AssetMayaNative
+  }
+  if (denom === cacaoDenom) {
+    return AssetCacaoNative
+  }
+
+  return assetFromString(denom.toUpperCase())
+}
+
+export const getKujiraAssetFromDenom = (denom: string): { decimals: number; asset: Asset } => {
+  if (denom === kujiDenom) {
+    return { asset: AssetKUJIRA, decimals: KUJI_DECIMAL }
+  }
+
+  const asset = new Denom(denom)
+
+  return {
+    asset: {
+      chain: Chain.Kuji,
+      symbol: asset.symbol,
+      ticker: asset.symbol,
+      synth: false,
+    } as Asset,
+    decimals: asset.decimals,
+  }
 }
 
 export const assetEqualsAsset = (assetOne: Asset, assetTwo: Asset): boolean => {

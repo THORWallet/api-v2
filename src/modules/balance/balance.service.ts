@@ -1,12 +1,12 @@
 import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { BalancesResponse, CovalentClient } from '@covalenthq/client-sdk'
+import { BalancesResponse } from '@covalenthq/client-sdk'
 import { BncClient } from '@binance-chain/javascript-sdk/lib/client'
 import BigNumber from 'bignumber.js'
 import axios from 'axios'
 import { Balance, BnbBalance } from './types/balance'
-import { assetAmount, assetFromString, assetToBase } from '@xchainjs/xchain-util'
+import { assetAmount, assetFromString, assetToBase, baseAmount } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
   BNB_DECIMAL,
@@ -21,11 +21,18 @@ import {
   nativeChainAssetIcons,
   runeDenom,
   tickers,
+  kujiTokens,
 } from '../../constants'
 import { NodeInfoResponse } from '../api/types/thornode.types'
 import { cosmosclient, proto, rest } from '@cosmos-client/core'
 import { PoolService } from '../pool/pool.service'
-import { AssetRuneNative, getCosmosAssetFromDenom, getDecimalsByAsset } from '../asset/asset.helpers'
+import {
+  AssetRuneNative,
+  getCosmosAssetFromDenom,
+  getDecimalsByAsset,
+  getKujiraAssetFromDenom,
+  getMayaAssetFromDenom,
+} from '../asset/asset.helpers'
 import { StatsService } from '../stats/stats.service'
 import { PriceService } from '../price/price.service'
 
@@ -289,7 +296,7 @@ export class BalanceService {
           name: tickerData?.name || '',
           decimals: THORCHAIN_DECIMAL,
           usdPrice: assetPrice,
-          isSynthetic: true,
+          isSynthetic: asset.synth,
         },
         amount: new BigNumber(amount).div(10 ** THORCHAIN_DECIMAL).toString(),
         rawAmount: amount,
@@ -424,5 +431,94 @@ export class BalanceService {
     })
 
     return assets
+  }
+
+  getMayaBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const chainId = await this.getMayaChainId()
+
+    const balances = await this.getSdkBalance({
+      address,
+      server: this.configService.get('MAYANODE_URL'),
+      chainId,
+      prefix: 'maya',
+    })
+
+    const pools = await this.tcPoolsService.getMayaMidgardPools()
+    const mayaStats = await this.statsService.getTcStats()
+
+    const assets = balances.map((balance) => {
+      const { denom, amount } = balance
+      const asset = getMayaAssetFromDenom(denom)
+
+      const [tickerName] = asset.symbol.split('-')
+      const tickerData = tickers.find((t) => t.ticker === tickerName)
+
+      const assetPrice =
+        denom === mayaDenom
+          ? '40'
+          : denom === cacaoDenom
+          ? mayaStats.runePriceUSD
+          : pools.find((p) => p.asset === `${denom.replace('/', '.').toUpperCase()}`)?.assetPriceUSD || ''
+      const decimal = denom === mayaDenom ? MAYA_DECIMAL : CACAO_DECIMAL
+      return {
+        asset: {
+          chain: asset?.chain,
+          ticker: asset?.ticker,
+          symbol: asset?.symbol,
+          icon: tickerData?.icon || '',
+          name: tickerData?.name || '',
+          decimals: decimal,
+          usdPrice: assetPrice,
+          isSynthetic: asset.synth,
+        },
+        amount: new BigNumber(amount).div(10 ** decimal).toString(),
+        rawAmount: amount,
+      }
+    })
+
+    return assets
+  }
+
+  getKujiraBalanceForAddress = async (address: string): Promise<Balance[]> => {
+    const tradableBalances = { ...kujiTokens }
+    const chainId = 'kaiyo-1'
+
+    const balances = await this.getSdkBalance({
+      address,
+      server: this.configService.get('KUJIRA_NODE_URL'),
+      chainId,
+      prefix: 'kujira',
+    })
+
+    const mappedBalances = balances.map((balance) => {
+      const info = getKujiraAssetFromDenom(balance.denom)
+
+      return (tradableBalances[`${info.asset.chain}.${info.asset.ticker}`] = {
+        asset: info?.asset,
+        amount: baseAmount(balance?.amount, info?.decimals || 0),
+        decimals: info?.decimals,
+      })
+    })
+
+    const usdPrices = await this.priceService.fetchPricesFromCoingecko(mappedBalances.map((balance) => balance.asset))
+
+    const apiBalances = mappedBalances.map((t) => {
+      return {
+        asset: {
+          chain: t?.asset.chain,
+          ticker: t?.asset.ticker,
+          symbol: t?.asset.symbol,
+          icon: '',
+          name: '',
+          decimals: t.decimals,
+          usdPrice: usdPrices[t.asset.ticker] ? usdPrices[t.asset.ticker].toString() : '',
+          isSynthetic: false,
+        },
+        amount: t.amount.amount().toString(),
+        rawAmount: t.amount.amount().toString(),
+      }
+    })
+
+    return apiBalances
   }
 }

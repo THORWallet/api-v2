@@ -96,3 +96,6 @@ export const nativeChainAssetIcons: Record<Chain, string> = {
 }
 
 export const runeDenom = 'rune'
+export const mayaDenom = 'maya'
+export const cacaoDenom = 'cacao'
+export const kujiDenom = 'ukuji'
