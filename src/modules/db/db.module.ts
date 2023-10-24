@@ -16,10 +16,14 @@ import { TypeOrmModule } from '@nestjs/typeorm'
         synchronize: !!configService.get<boolean>('POSTGRES_SYNCRONIZE'),
         logging: false,
         autoLoadEntities: true,
-        ssl: {
-          rejectUnauthorized: false,
-          mode: 'prefer',
-        },
+        ...(configService.get('MODE') === 'local'
+          ? {}
+          : {
+              ssl: {
+                rejectUnauthorized: false,
+                mode: 'prefer',
+              },
+            }),
       }),
       inject: [ConfigService],
     }),
