@@ -3,7 +3,10 @@ name: Lint Check
 on:
   push:
     branches:
-      - master # You can specify the branch you want to trigger the lint check on
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   lint:
