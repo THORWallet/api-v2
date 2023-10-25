@@ -3,7 +3,7 @@ name: Lint Check
 on:
   push:
     branches:
-      - main # You can specify the branch you want to trigger the lint check on
+      - master # You can specify the branch you want to trigger the lint check on
 
 jobs:
   lint:
@@ -22,4 +22,4 @@ jobs:
         run: npm install # Or yarn install if you're using Yarn
 
       - name: Lint code
-        run: npm run lint # Replace with your linting command
+        run: npm run lint:test # Replace with your linting command
