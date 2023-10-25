@@ -1,6 +1,8 @@
-name: Lint Check
+name: Lint
 
 on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
   push:
     branches:
       - master
@@ -9,20 +11,25 @@ on:
       - master
 
 jobs:
-  lint:
+  run-linters:
+    name: Run linters
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
         with:
-          node-version: 14 # Specify the Node.js version you need
+          node-version: 12
 
-      - name: Install dependencies
-        run: npm install # Or yarn install if you're using Yarn
+      # ESLint and Prettier must be in `package.json`
+      - name: Install Node.js dependencies
+        run: npm ci
 
-      - name: Lint code
-        run: npm run lint:test # Replace with your linting command
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          prettier: true
