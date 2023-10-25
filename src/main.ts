@@ -10,7 +10,7 @@ async function bootstrap() {
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   }
-
+  console.log("asd", {noWAR})
   const document = SwaggerModule.createDocument(app, config, options)
   SwaggerModule.setup('api', app, document)
 
