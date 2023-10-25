@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: npm ci
+      - run: yarn
 
       - name: Run linter
         uses: github/super-linter/slim@v4
