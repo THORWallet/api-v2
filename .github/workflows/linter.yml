@@ -1,42 +1,35 @@
-name: Linter check
+name: Lint
 
 on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
   push:
     branches:
       - master
-      - develop
   pull_request:
     branches:
       - master
-      - develop
 
 jobs:
-  build:
-    name: Linter check
+  run-linters:
+    name: Run linters
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
         with:
-          fetch-depth: 0
+          node-version: 12
 
-      - name: User Node environment ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      # ESLint and Prettier must be in `package.json`
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - run: npm ci
-
-      - name: Run linter
-        uses: github/super-linter/slim@v4
-        env:
-          DEFAULT_BRANCH: develop
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          LOG_LEVEL: WARN
-          FILTER_REGEX_INCLUDE: .*src/*.
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JSX: true
-          LINTER_RULES_PATH: /
-          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.json
+          eslint: true
+          prettier: true
