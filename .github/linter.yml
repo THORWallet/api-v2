@@ -1,42 +1,25 @@
-name: Linter check
+name: Lint Check
 
 on:
   push:
     branches:
-      - master
-      - develop
-  pull_request:
-    branches:
-      - master
-      - develop
+      - main # You can specify the branch you want to trigger the lint check on
 
 jobs:
-  build:
-    name: Linter check
+  lint:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Check out code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
-      - name: User Node environment ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14 # Specify the Node.js version you need
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm install # Or yarn install if you're using Yarn
 
-      - name: Run linter
-        uses: github/super-linter/slim@v4
-        env:
-          DEFAULT_BRANCH: develop
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          LOG_LEVEL: WARN
-          FILTER_REGEX_INCLUDE: .*src/*.
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JSX: true
-          LINTER_RULES_PATH: /
-          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.json
+      - name: Lint code
+        run: npm run lint # Replace with your linting command
