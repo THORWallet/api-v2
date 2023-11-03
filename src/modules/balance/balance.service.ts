@@ -54,7 +54,7 @@ export class BalanceService {
     const { data } = await this.ethplorereApi.axiosRef.get(`getAddressInfo/${address}`)
     const {
       ETH: { balance, rawBalance, price },
-      tokens,
+      tokens = [],
     } = data
 
     const ethBalance: Balance = {
