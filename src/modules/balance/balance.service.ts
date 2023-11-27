@@ -26,6 +26,7 @@ import {
   cacaoDenom,
   MAYA_DECIMAL,
   CACAO_DECIMAL,
+  kujiDenom,
 } from '../../constants'
 import { NodeInfoResponse } from '../api/types/thornode.types'
 import { cosmosclient, proto, rest } from '@cosmos-client/core'
@@ -272,7 +273,7 @@ export class BalanceService {
     return response.data.balances as proto.cosmos.base.v1beta1.Coin[]
   }
 
-  getThorchainBalanceForAddress = async (address: string): Promise<any> => {
+  getThorchainBalanceForAddress = async (address: string): Promise<Balance[]> => {
     const networkId = await this.getTcChainId()
     const balances = await this.getSdkBalance({
       address,
@@ -284,6 +285,10 @@ export class BalanceService {
     const pools = await this.tcPoolsService.getThorchainMidgardPools()
     const tcStats = await this.statsService.getTcStats()
 
+    if (balances.length === 0) {
+      balances.push({ denom: 'rune', amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
+    }
+
     const assets = balances.map((balance) => {
       const { denom: _denom, amount } = balance
       const denom = _denom.toUpperCase()
@@ -292,6 +297,7 @@ export class BalanceService {
       const [tickerName] = asset.symbol.split('-')
       const tickerData = tickers.find((t) => t.ticker === tickerName)
 
+      // TODO use map instead of find
       const assetPrice =
         denom === runeDenom
           ? tcStats.runePriceUSD
@@ -319,6 +325,14 @@ export class BalanceService {
   getBnbBalanceForAddress = async (address: string): Promise<Balance[]> => {
     const client = new BncClient(this.configService.get('BNB_CLIENT_URL'))
     const rawBalances: BnbBalance[] = await client.getBalance(address)
+    if (rawBalances.length === 0) {
+      rawBalances.push({
+        free: '0',
+        frozen: '0',
+        locked: '0',
+        symbol: 'BNB',
+      })
+    }
     const usdPrices = await this.priceService.fetchPricesFromCoingecko(
       rawBalances.map((balance) => assetFromString(`BNB.${balance.symbol}`)),
     )
@@ -413,7 +427,9 @@ export class BalanceService {
       chainId: 'cosmoshub-4',
       prefix: 'cosmos',
     })
-
+    if (balances.length === 0) {
+      balances.push({ denom: 'uatom', amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
+    }
     const assetPrices = await this.priceService.fetchPricesFromCoingecko(
       balances.map((balance) => getCosmosAssetFromDenom(balance.denom)),
     )
@@ -433,7 +449,7 @@ export class BalanceService {
           name: tickerData?.name || '',
           decimals,
           usdPrice: assetPrices[asset.ticker] ? assetPrices[asset.ticker].toString() : '',
-          isSynthetic: true,
+          isSynthetic: false,
         },
         amount: new BigNumber(amount).div(10 ** decimals).toString(),
         rawAmount: amount,
@@ -452,6 +468,10 @@ export class BalanceService {
       chainId,
       prefix: 'maya',
     })
+
+    if (balances.length === 0) {
+      balances.push({ denom: 'cacao', amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
+    }
 
     const pools = await this.tcPoolsService.getMayaMidgardPools()
     const mayaStats = await this.statsService.getTcStats()
@@ -499,7 +519,9 @@ export class BalanceService {
       chainId,
       prefix: 'kujira',
     })
-
+    if (balances.length === 0) {
+      balances.push({ denom: kujiDenom, amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
+    }
     const mappedBalances = balances.map((balance) => {
       const info = getKujiraAssetFromDenom(balance.denom)
 
