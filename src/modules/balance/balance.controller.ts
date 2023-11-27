@@ -46,7 +46,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get btc balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async btcBalance(@Param('address') address: string): Promise<Balance> {
     const balances = await this.balanceService.getBtcBalanceForAddress(address)
 
@@ -58,7 +58,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get cached btc balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async btcCachedBalance(@Param('address') address: string): Promise<Balance> {
     const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.btcCache(address))
     if (cachedBalances) {
@@ -73,7 +73,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get bch balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async bchBalance(@Param('address') address: string): Promise<Balance> {
     const balances = await this.balanceService.getBchBalanceForAddress(address)
 
@@ -85,7 +85,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get cached bch balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async bchCachedBalance(@Param('address') address: string): Promise<Balance> {
     const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.bchCache(address))
     if (cachedBalances) {
@@ -100,7 +100,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get ltc balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async ltcBalance(@Param('address') address: string): Promise<Balance> {
     const balances = await this.balanceService.getLtcBalanceForAddress(address)
 
@@ -112,7 +112,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get cached ltc balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async ltcCachedBalance(@Param('address') address: string): Promise<Balance> {
     const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.ltcCache(address))
     if (cachedBalances) {
@@ -127,7 +127,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get doge balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async dogeBalance(@Param('address') address: string): Promise<Balance> {
     const balances = await this.balanceService.getDogeBalanceForAddress(address)
 
@@ -139,7 +139,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get cached doge balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async dogeCachedBalance(@Param('address') address: string): Promise<Balance> {
     const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.dogeCache(address))
     if (cachedBalances) {
@@ -154,7 +154,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get dash balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async dashBalance(@Param('address') address: string): Promise<Balance> {
     const balances = await this.balanceService.getDashBalanceForAddress(address)
 
@@ -166,7 +166,7 @@ export class BalanceController {
   @ApiOperation({
     summary: 'Get cached dash balances',
   })
-  @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
+  @ApiResponse({ status: 200, description: 'Success', type: Balance })
   async dashCachedBalance(@Param('address') address: string): Promise<Balance> {
     const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.dashCache(address))
     if (cachedBalances) {
@@ -182,7 +182,7 @@ export class BalanceController {
     summary: 'Get thorchain balances',
   })
   @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
-  async thorchainBalance(@Param('address') address: string): Promise<Balance> {
+  async thorchainBalance(@Param('address') address: string): Promise<Balance[]> {
     const balances = await this.balanceService.getThorchainBalanceForAddress(address)
 
     await this.cacheManager.set(BALANCE_KEYS.thorchainCache(address), balances, CACHE_TIME.hour * 24)
@@ -194,8 +194,8 @@ export class BalanceController {
     summary: 'Get cached thorchain balances',
   })
   @ApiResponse({ status: 200, description: 'Success', type: [Balance] })
-  async thorchainCachedBalance(@Param('address') address: string): Promise<Balance> {
-    const cachedBalances = await this.cacheManager.get<Balance>(BALANCE_KEYS.thorchainCache(address))
+  async thorchainCachedBalance(@Param('address') address: string): Promise<Balance[]> {
+    const cachedBalances = await this.cacheManager.get<Balance[]>(BALANCE_KEYS.thorchainCache(address))
     if (cachedBalances) {
       return cachedBalances
     }
