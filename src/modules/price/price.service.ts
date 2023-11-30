@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Asset } from '@xchainjs/xchain-util'
 import axios from 'axios'
@@ -73,15 +73,19 @@ export class PriceService {
       : ticker.split('.')[1] || null
 
     if (!tickerToUse) {
-      throw new Error('Invalid ticker')
+      throw new HttpException(`${ticker} is not supported.`, HttpStatus.BAD_REQUEST)
     }
 
     const coingeckoId = this.mapTickerToCoinGeckoId(tickerToUse)
 
-    console.log('coingeckoId', coingeckoId)
     const { data: currentPriceData } = await axios.get(
       `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${coingeckoId}&vs_currencies=usd`,
     )
+
+    if (Object.keys(currentPriceData).length === 0) {
+      throw new HttpException(`${ticker} is not supported.`, HttpStatus.BAD_REQUEST)
+    }
+
     const currentPrice = currentPriceData[coingeckoId].usd
 
     const { data } = await axios.get(
