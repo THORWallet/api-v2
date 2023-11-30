@@ -6,6 +6,7 @@ import { CACHE_TIME, tickers } from '../../constants'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { PRICE_CACHE } from './cache-keys/price.cache-keys'
+import { PriceHistoryResponse } from './types'
 
 @Injectable()
 export class PriceService {
@@ -57,5 +58,49 @@ export class PriceService {
       }, {})
     await this.cacheManager.set(PRICE_CACHE.coingeckoAssets(mappedTickers), result, CACHE_TIME.minute * 5)
     return result
+  }
+
+  fetchPriceHistoryFromCoinGecko = async ({
+    ticker,
+    days = 7,
+  }: {
+    ticker: string
+    days?: number
+  }): Promise<PriceHistoryResponse> => {
+    const tickerToUse = ticker.split('.')[1] || null
+
+    if (!tickerToUse) {
+      throw new Error('Invalid ticker')
+    }
+
+    const coingeckoId = this.mapTickerToCoinGeckoId(tickerToUse)
+    const { data: currentPriceData } = await axios.get(
+      `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${coingeckoId}&vs_currencies=usd`,
+    )
+    const currentPrice = currentPriceData[coingeckoId].usd
+
+    const { data } = await axios.get(
+      `${this.configService.get(
+        'COINGECKO_API_URL',
+      )}coins/${coingeckoId}/market_chart?vs_currency=usd&days=${days}&interval=daily`,
+    )
+
+    const priceChange24hUsd = currentPrice - data.prices[1][1]
+    const priceChange24hPercentage = (priceChange24hUsd / data.prices[0][1]) * 100
+
+    const responseObject = {
+      id: coingeckoId,
+      name: ticker,
+      priceChange24hUsd,
+      priceChange24hPercentage:
+        priceChange24hPercentage >= 0
+          ? `+${priceChange24hPercentage.toFixed(2)}`
+          : `${priceChange24hPercentage.toFixed(2)}`,
+      history: data.prices,
+      currentPriceInUsd: currentPrice,
+      timeStamp: new Date().getTime(),
+    }
+
+    return responseObject
   }
 }
