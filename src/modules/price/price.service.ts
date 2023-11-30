@@ -78,7 +78,6 @@ export class PriceService {
 
     const coingeckoId = this.mapTickerToCoinGeckoId(tickerToUse)
 
-    console.log('coingeckoId', coingeckoId)
     const { data: currentPriceData } = await axios.get(
       `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${coingeckoId}&vs_currencies=usd`,
     )
