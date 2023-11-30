@@ -8,7 +8,7 @@ export const tickers = [
   },
   {
     chain: 'ETH',
-    coingeckoId: 'thorwallet-dex',
+    coingeckoId: 'thorwallet',
     icon: 'https://assets.coingecko.com/coins/images/21843/large/tgt_logo.png?1641568708',
     name: 'TGT',
     ticker: 'TGT',

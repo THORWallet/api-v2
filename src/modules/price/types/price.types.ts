@@ -9,7 +9,7 @@ export class PriceHistoryResponse {
   priceChange24hUsd: number
   @ApiProperty({ description: `The asset's price change in % 24h`, type: String })
   priceChange24hPercentage: string
-  @ApiProperty({ description: 'The asset symbol', type: [[Number]] })
+  @ApiProperty({ description: 'The asset symbol', type: [[Number]], example: [[1700784000000, 37293.316127426726]] })
   history: number[]
   @ApiProperty({ description: 'The asset price at cache time', type: Number })
   currentPriceInUsd: number

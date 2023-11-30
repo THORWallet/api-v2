@@ -40,7 +40,6 @@ export class PriceService {
     if (cachedData) {
       return cachedData
     }
-
     const { data } = await axios.get(
       `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${mappedTickers}&vs_currencies=usd`,
     )
@@ -67,13 +66,19 @@ export class PriceService {
     ticker: string
     days?: number
   }): Promise<PriceHistoryResponse> => {
-    const tickerToUse = ticker.split('.')[1] || null
+    const tickerToUse = ticker.split('.')[1]
+      ? ticker.split('.')[1].includes('-')
+        ? ticker.split('.')[1].split('-')[0]
+        : ticker.split('.')[1]
+      : ticker.split('.')[1] || null
 
     if (!tickerToUse) {
       throw new Error('Invalid ticker')
     }
 
     const coingeckoId = this.mapTickerToCoinGeckoId(tickerToUse)
+
+    console.log('coingeckoId', coingeckoId)
     const { data: currentPriceData } = await axios.get(
       `${this.configService.get('COINGECKO_API_URL')}simple/price?ids=${coingeckoId}&vs_currencies=usd`,
     )
