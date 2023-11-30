@@ -43,6 +43,14 @@ export class Balance {
   rawAmount: string
 }
 
+export class BalanceResponse {
+  @ApiProperty({ description: 'The address associated with the balance', type: [Balance] })
+  balances: Balance[]
+
+  @ApiProperty({ description: 'The total balance of the address', type: String })
+  totalInUsd: string
+}
+
 export type BnbBalance = {
   /**
    * asset symbol, e.g. BNB

@@ -5,7 +5,7 @@ import { BalancesResponse } from '@covalenthq/client-sdk'
 import { BncClient } from '@binance-chain/javascript-sdk/lib/client'
 import BigNumber from 'bignumber.js'
 import axios from 'axios'
-import { Balance, BnbBalance } from './types/balance'
+import { Balance, BalanceResponse, BnbBalance } from './types/balance'
 import { assetAmount, assetFromString, assetToBase, baseAmount } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
@@ -51,7 +51,7 @@ export class BalanceService {
     private readonly priceService: PriceService,
   ) {}
 
-  getBalancesForEthAddress = async (address: string): Promise<Balance[]> => {
+  getBalancesForEthAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await this.ethplorereApi.axiosRef.get(`getAddressInfo/${address}`)
     const {
       ETH: { balance, rawBalance, price },
@@ -73,12 +73,19 @@ export class BalanceService {
       amount: balance,
       rawAmount: rawBalance,
     }
+    const ethBalanceInUsd = new BigNumber(balance).times(new BigNumber(price?.rate) || 0)
+    let tokenBalancesInUsd = new BigNumber(0)
+
     const tokenBalances: Balance[] = tokens
       .filter(({ tokenInfo }) => assetFromString(`ETH.${tokenInfo.symbol}-${tokenInfo.address}`))
       .map(({ tokenInfo, balance, rawBalance }) => {
         const { chain, ticker, symbol } = assetFromString(`ETH.${tokenInfo.symbol}-${tokenInfo.address}`)
         const [tickerName] = symbol.split('-')
         const tickerData = tickers.find((t) => t.ticker === tickerName)
+        const amount = new BigNumber(balance).div(10 ** tokenInfo.decimals)
+        const amountInUsd = amount.times(new BigNumber(tokenInfo.price?.rate || 0))
+
+        tokenBalancesInUsd = tokenBalancesInUsd.plus(amountInUsd)
 
         return {
           asset: {
@@ -92,14 +99,15 @@ export class BalanceService {
             usdPrice: tokenInfo.price?.rate || '',
             chainId: chainIds.Ethereum,
           },
-          amount: new BigNumber(balance).div(10 ** tokenInfo.decimals).toString(),
+          amount: amount.toString(),
           rawAmount: rawBalance,
         }
       })
-    return [ethBalance, ...tokenBalances]
+
+    return { balances: [ethBalance, ...tokenBalances], totalInUsd: ethBalanceInUsd.plus(tokenBalancesInUsd).toString() }
   }
 
-  getBtcBalanceForAddress = async (address: string): Promise<Balance> => {
+  getBtcBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await axios.get(
       this.configService.get('BLOCKCHAIR_URL') +
         '/bitcoin' +
@@ -112,21 +120,26 @@ export class BalanceService {
     const usdPrice = data.context.market_price_usd
 
     return {
-      asset: {
-        chain: 'BTC',
-        ticker: 'BTC',
-        symbol: 'BTC',
-        icon: nativeChainAssetIcons.BTC,
-        name: 'Bitcoin',
-        decimals: BTC_DECIMAL,
-        usdPrice,
-      },
-      amount: confirmed.amount().toString(),
-      rawAmount: raw.amount().toString(),
+      balances: [
+        {
+          asset: {
+            chain: 'BTC',
+            ticker: 'BTC',
+            symbol: 'BTC',
+            icon: nativeChainAssetIcons.BTC,
+            name: 'Bitcoin',
+            decimals: BTC_DECIMAL,
+            usdPrice,
+          },
+          amount: confirmed.amount().toString(),
+          rawAmount: raw.amount().toString(),
+        },
+      ],
+      totalInUsd: confirmed.amount().times(usdPrice).toString(),
     }
   }
 
-  getBchBalanceForAddress = async (address: string): Promise<Balance> => {
+  getBchBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await axios.get(
       this.configService.get('BLOCKCHAIR_URL') +
         '/bitcoin-cash' +
@@ -139,21 +152,26 @@ export class BalanceService {
     const usdPrice = data.context.market_price_usd
 
     return {
-      asset: {
-        chain: 'BCH',
-        ticker: 'BCH',
-        symbol: 'BCH',
-        icon: nativeChainAssetIcons.BCH,
-        name: 'Bitcoin Cash',
-        decimals: BCH_DECIMAL,
-        usdPrice,
-      },
-      amount: confirmed.amount().toString(),
-      rawAmount: raw.amount().toString(),
+      balances: [
+        {
+          asset: {
+            chain: 'BCH',
+            ticker: 'BCH',
+            symbol: 'BCH',
+            icon: nativeChainAssetIcons.BCH,
+            name: 'Bitcoin Cash',
+            decimals: BCH_DECIMAL,
+            usdPrice,
+          },
+          amount: confirmed.amount().toString(),
+          rawAmount: raw.amount().toString(),
+        },
+      ],
+      totalInUsd: confirmed.amount().times(usdPrice).toString(),
     }
   }
 
-  getLtcBalanceForAddress = async (address: string): Promise<Balance> => {
+  getLtcBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await axios.get(
       this.configService.get('BLOCKCHAIR_URL') +
         '/litecoin' +
@@ -166,21 +184,26 @@ export class BalanceService {
     const usdPrice = data.context.market_price_usd
 
     return {
-      asset: {
-        chain: 'LTC',
-        ticker: 'LTC',
-        symbol: 'LTC',
-        icon: nativeChainAssetIcons.LTC,
-        name: 'Litecoin',
-        decimals: LTC_DECIMAL,
-        usdPrice,
-      },
-      amount: confirmed.amount().toString(),
-      rawAmount: raw.amount().toString(),
+      balances: [
+        {
+          asset: {
+            chain: 'LTC',
+            ticker: 'LTC',
+            symbol: 'LTC',
+            icon: nativeChainAssetIcons.LTC,
+            name: 'Litecoin',
+            decimals: LTC_DECIMAL,
+            usdPrice,
+          },
+          amount: confirmed.amount().toString(),
+          rawAmount: raw.amount().toString(),
+        },
+      ],
+      totalInUsd: confirmed.amount().times(usdPrice).toString(),
     }
   }
 
-  getDogeBalanceForAddress = async (address: string): Promise<Balance> => {
+  getDogeBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await axios.get(
       this.configService.get('BLOCKCHAIR_URL') +
         '/dogecoin' +
@@ -193,21 +216,26 @@ export class BalanceService {
     const usdPrice = data.context.market_price_usd
 
     return {
-      asset: {
-        chain: 'DOGE',
-        ticker: 'DOGE',
-        symbol: 'DOGE',
-        icon: nativeChainAssetIcons.DOGE,
-        name: 'Dogecoin',
-        decimals: DOGE_DECIMAL,
-        usdPrice,
-      },
-      amount: confirmed.amount().toString(),
-      rawAmount: raw.amount().toString(),
+      balances: [
+        {
+          asset: {
+            chain: 'DOGE',
+            ticker: 'DOGE',
+            symbol: 'DOGE',
+            icon: nativeChainAssetIcons.DOGE,
+            name: 'Dogecoin',
+            decimals: DOGE_DECIMAL,
+            usdPrice,
+          },
+          amount: confirmed.amount().toString(),
+          rawAmount: raw.amount().toString(),
+        },
+      ],
+      totalInUsd: confirmed.amount().times(usdPrice).toString(),
     }
   }
 
-  getDashBalanceForAddress = async (address: string): Promise<Balance> => {
+  getDashBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const { data } = await axios.get(
       this.configService.get('BLOCKCHAIR_URL') +
         '/dash' +
@@ -220,17 +248,22 @@ export class BalanceService {
     const usdPrice = data.context.market_price_usd
 
     return {
-      asset: {
-        chain: 'DASH',
-        ticker: 'DASH',
-        symbol: 'DASH',
-        icon: nativeChainAssetIcons.DASH,
-        name: 'Dash',
-        decimals: DASH_DECIMAL,
-        usdPrice,
-      },
-      amount: confirmed.amount().toString(),
-      rawAmount: raw.amount().toString(),
+      balances: [
+        {
+          asset: {
+            chain: 'DASH',
+            ticker: 'DASH',
+            symbol: 'DASH',
+            icon: nativeChainAssetIcons.DASH,
+            name: 'Dash',
+            decimals: DASH_DECIMAL,
+            usdPrice,
+          },
+          amount: confirmed.amount().toString(),
+          rawAmount: raw.amount().toString(),
+        },
+      ],
+      totalInUsd: confirmed.amount().times(usdPrice).toString(),
     }
   }
 
@@ -273,7 +306,7 @@ export class BalanceService {
     return response.data.balances as proto.cosmos.base.v1beta1.Coin[]
   }
 
-  getThorchainBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getThorchainBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const networkId = await this.getTcChainId()
     const balances = await this.getSdkBalance({
       address,
@@ -289,6 +322,8 @@ export class BalanceService {
       balances.push({ denom: 'rune', amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
     }
 
+    let totalBalanceInUsd = new BigNumber(0)
+
     const assets = balances.map((balance) => {
       const { denom: _denom, amount } = balance
       const denom = _denom.toUpperCase()
@@ -299,9 +334,14 @@ export class BalanceService {
 
       // TODO use map instead of find
       const assetPrice =
-        denom === runeDenom
+        denom.toUpperCase() === runeDenom.toUpperCase()
           ? tcStats.runePriceUSD
           : pools.find((p) => p.asset === `${denom.replace('/', '.').toUpperCase()}`)?.assetPriceUSD || ''
+
+      const assetAmount = new BigNumber(amount).div(10 ** THORCHAIN_DECIMAL)
+
+      const assetBalanceInUsd = assetAmount.times(assetPrice)
+      totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
 
       return {
         asset: {
@@ -314,15 +354,15 @@ export class BalanceService {
           usdPrice: assetPrice,
           isSynthetic: asset.synth,
         },
-        amount: new BigNumber(amount).div(10 ** THORCHAIN_DECIMAL).toString(),
+        amount: assetAmount.toString(),
         rawAmount: amount,
       }
     })
 
-    return assets
+    return { balances: assets, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getBnbBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getBnbBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const client = new BncClient(this.configService.get('BNB_CLIENT_URL'))
     const rawBalances: BnbBalance[] = await client.getBalance(address)
     if (rawBalances.length === 0) {
@@ -336,11 +376,15 @@ export class BalanceService {
     const usdPrices = await this.priceService.fetchPricesFromCoingecko(
       rawBalances.map((balance) => assetFromString(`BNB.${balance.symbol}`)),
     )
-
+    let totalBalanceInUsd = new BigNumber(0)
     const balances = rawBalances.map((balance) => {
       const asset = assetFromString(`BNB.${balance.symbol}`)
       const [tickerName] = asset.symbol.split('-')
       const tickerData = tickers.find((t) => t.ticker === tickerName)
+      const assetPrice = usdPrices[asset.ticker].toString() || '0'
+      const assetAmount = balance.free
+      const assetBalanceInUsd = new BigNumber(assetAmount).times(assetPrice)
+      totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
 
       return {
         asset: {
@@ -350,17 +394,17 @@ export class BalanceService {
           icon: tickerData?.icon || '',
           name: tickerData?.name || '',
           decimals: BNB_DECIMAL,
-          usdPrice: usdPrices[asset.ticker] ? usdPrices[asset.ticker].toString() : '',
+          usdPrice: assetPrice,
         },
         amount: balance.free,
         rawAmount: balance.free,
       }
     })
 
-    return balances
+    return { balances, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getBscBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getBscBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const covalentKey = this.configService.get('COVALENT_API_KEY')
     const covalentApiUrl = this.configService.get('COVALENT_API_URL')
 
@@ -368,8 +412,14 @@ export class BalanceService {
       `${covalentApiUrl}/56/address/${address}/balances_v2/?key=${covalentKey}`,
     )
 
+    let totalBalanceInUsd = new BigNumber(0)
+
     const balances: Balance[] = rawBalances.data.items.map((balance) => {
       const asset = assetFromString(`BSC.${balance.contract_ticker_symbol}`)
+      const amount = new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString()
+      const assetPrice = balance.quote_rate?.toString() || '0'
+      const assetBalanceInUsd = new BigNumber(amount).times(assetPrice)
+      totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
 
       return {
         asset: {
@@ -379,18 +429,18 @@ export class BalanceService {
           icon: balance.logo_url,
           name: balance.contract_name,
           decimals: balance.contract_decimals,
-          usdPrice: balance.quote_rate?.toString() || '',
+          usdPrice: assetPrice,
           contractAddress: balance.contract_address,
         },
-        amount: new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString(),
+        amount,
         rawAmount: balance.balance.toString(),
       }
     })
 
-    return balances
+    return { balances, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getAvalancheBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getAvalancheBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const covalentKey = this.configService.get('COVALENT_API_KEY')
     const covalentApiUrl = this.configService.get('COVALENT_API_URL')
 
@@ -398,8 +448,14 @@ export class BalanceService {
       `${covalentApiUrl}/43114/address/${address}/balances_v2/?key=${covalentKey}`,
     )
 
+    let totalBalanceInUsd = new BigNumber(0)
+
     const balances: Balance[] = rawBalances.data.items.map((balance) => {
       const asset = assetFromString(`AVAX.${balance.contract_ticker_symbol}`)
+      const amount = new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString()
+      const assetPrice = balance.quote_rate?.toString() || '0'
+      const assetBalanceInUsd = new BigNumber(amount).times(assetPrice)
+      totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
 
       return {
         asset: {
@@ -409,18 +465,18 @@ export class BalanceService {
           icon: balance.logo_url,
           name: balance.contract_name,
           decimals: balance.contract_decimals,
-          usdPrice: balance.quote_rate?.toString() || '',
+          usdPrice: assetPrice,
           contractAddress: balance.contract_address,
         },
-        amount: new BigNumber(balance.balance.toString()).div(10 ** balance.contract_decimals).toString(),
+        amount,
         rawAmount: balance.balance.toString(),
       }
     })
 
-    return balances
+    return { balances, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getCosmosBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getCosmosBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const balances = await this.getSdkBalance({
       address,
       server: this.configService.get('COSMOS_SERVER_URL'),
@@ -433,33 +489,38 @@ export class BalanceService {
     const assetPrices = await this.priceService.fetchPricesFromCoingecko(
       balances.map((balance) => getCosmosAssetFromDenom(balance.denom)),
     )
+    let totalBalanceInUsd = new BigNumber(0)
+    const assets = balances
+      .filter((b) => b.denom === 'uatom')
+      .map((balance) => {
+        const { denom, amount } = balance
+        const asset = getCosmosAssetFromDenom(denom)
+        const [tickerName] = asset.symbol.split('-')
+        const tickerData = tickers.find((t) => t.ticker === tickerName)
+        const decimals = getDecimalsByAsset(asset)
 
-    const assets = balances.map((balance) => {
-      const { denom, amount } = balance
-      const asset = getCosmosAssetFromDenom(denom)
-      const [tickerName] = asset.symbol.split('-')
-      const tickerData = tickers.find((t) => t.ticker === tickerName)
-      const decimals = getDecimalsByAsset(asset)
-      return {
-        asset: {
-          chain: asset?.chain,
-          ticker: asset?.ticker,
-          symbol: asset?.symbol,
-          icon: tickerData?.icon || '',
-          name: tickerData?.name || '',
-          decimals,
-          usdPrice: assetPrices[asset.ticker] ? assetPrices[asset.ticker].toString() : '',
-          isSynthetic: false,
-        },
-        amount: new BigNumber(amount).div(10 ** decimals).toString(),
-        rawAmount: amount,
-      }
-    })
+        const assetBalanceInUsd = new BigNumber(amount).times(assetPrices[asset.ticker] || 0)
+        totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
+        return {
+          asset: {
+            chain: asset?.chain,
+            ticker: asset?.ticker,
+            symbol: asset?.symbol,
+            icon: tickerData?.icon || '',
+            name: tickerData?.name || '',
+            decimals,
+            usdPrice: assetPrices[asset.ticker] ? assetPrices[asset.ticker].toString() : '0',
+            isSynthetic: false,
+          },
+          amount: new BigNumber(amount).div(10 ** decimals).toString(),
+          rawAmount: amount,
+        }
+      })
 
-    return assets
+    return { balances: assets, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getMayaBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getMayaBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const chainId = await this.getMayaChainId()
 
     const balances = await this.getSdkBalance({
@@ -476,6 +537,8 @@ export class BalanceService {
     const pools = await this.tcPoolsService.getMayaMidgardPools()
     const mayaStats = await this.statsService.getTcStats()
 
+    let totalBalanceInUsd = new BigNumber(0)
+
     const assets = balances.map((balance) => {
       const { denom, amount } = balance
       const asset = getMayaAssetFromDenom(denom)
@@ -490,6 +553,10 @@ export class BalanceService {
           ? mayaStats.runePriceUSD
           : pools.find((p) => p.asset === `${denom.replace('/', '.').toUpperCase()}`)?.assetPriceUSD || ''
       const decimal = denom === mayaDenom ? MAYA_DECIMAL : CACAO_DECIMAL
+
+      const assetAmount = new BigNumber(amount).div(10 ** decimal)
+      totalBalanceInUsd = assetAmount.times(assetPrice)
+
       return {
         asset: {
           chain: asset?.chain,
@@ -501,15 +568,15 @@ export class BalanceService {
           usdPrice: assetPrice,
           isSynthetic: asset.synth,
         },
-        amount: new BigNumber(amount).div(10 ** decimal).toString(),
+        amount: assetAmount.toString(),
         rawAmount: amount,
       }
     })
 
-    return assets
+    return { balances: assets, totalInUsd: totalBalanceInUsd.toString() }
   }
 
-  getKujiraBalanceForAddress = async (address: string): Promise<Balance[]> => {
+  getKujiraBalanceForAddress = async (address: string): Promise<BalanceResponse> => {
     const tradableBalances = { ...kujiTokens }
     const chainId = 'kaiyo-1'
 
@@ -522,6 +589,9 @@ export class BalanceService {
     if (balances.length === 0) {
       balances.push({ denom: kujiDenom, amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
     }
+
+    let totalBalanceInUsd = new BigNumber(0)
+
     const mappedBalances = balances.map((balance) => {
       const info = getKujiraAssetFromDenom(balance.denom)
 
@@ -535,6 +605,15 @@ export class BalanceService {
     const usdPrices = await this.priceService.fetchPricesFromCoingecko(mappedBalances.map((balance) => balance.asset))
 
     const apiBalances = mappedBalances.map((t) => {
+      const assetPrice = usdPrices[t.asset.ticker].toString() || '0'
+      const assetAmount = t.amount
+        .amount()
+        .div(10 ** t.decimals)
+        .toString()
+
+      const assetBalanceInUsd = new BigNumber(assetAmount).times(assetPrice)
+      totalBalanceInUsd = totalBalanceInUsd.plus(assetBalanceInUsd)
+
       return {
         asset: {
           chain: t?.asset.chain,
@@ -543,14 +622,14 @@ export class BalanceService {
           icon: '',
           name: '',
           decimals: t.decimals,
-          usdPrice: usdPrices[t.asset.ticker] ? usdPrices[t.asset.ticker].toString() : '',
+          usdPrice: assetPrice,
           isSynthetic: false,
         },
-        amount: t.amount.amount().toString(),
+        amount: assetAmount,
         rawAmount: t.amount.amount().toString(),
       }
     })
 
-    return apiBalances
+    return { balances: apiBalances, totalInUsd: totalBalanceInUsd.toString() }
   }
 }
