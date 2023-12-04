@@ -24,7 +24,7 @@ import { APP_GUARD } from '@nestjs/core'
     ThrottlerModule.forRoot([
       {
         ttl: 2 * CACHE_TIME.minute,
-        limit: 30,
+        limit: 1000,
       },
     ]),
     DbModule,
