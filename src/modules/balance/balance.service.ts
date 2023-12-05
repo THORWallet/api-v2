@@ -535,7 +535,7 @@ export class BalanceService {
     }
 
     const pools = await this.tcPoolsService.getMayaMidgardPools()
-    const mayaStats = await this.statsService.getTcStats()
+    const mayaStats = await this.statsService.getMayaStats()
 
     let totalBalanceInUsd = new BigNumber(0)
 
