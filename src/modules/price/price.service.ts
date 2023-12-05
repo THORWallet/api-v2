@@ -86,7 +86,7 @@ export class PriceService {
       throw new HttpException(`${ticker} is not supported.`, HttpStatus.BAD_REQUEST)
     }
 
-    const currentPrice = currentPriceData[coingeckoId].usd
+    const currentPrice = currentPriceData[coingeckoId.toLowerCase()].usd
 
     const { data } = await axios.get(
       `${this.configService.get(
