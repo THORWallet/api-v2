@@ -32,7 +32,8 @@ jobs:
           script: |
             export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v16.18.0/bin"
             echo $PATH
-            which yarn
+            which nvm
+            nvm use v16.18.0
             cd ~/api-v2
             git pull origin master
             yarn install
