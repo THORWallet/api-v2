@@ -30,10 +30,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v16.18.0/bin"
-            echo $PATH
-            which nvm
+            source /home/ubuntu/.nvm/nvm.sh
             nvm use v16.18.0
+            export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v16.18.0/bin"
+            which nvm
+            which yarn
+            which pm2
             cd ~/api-v2
             git pull origin master
             yarn install
