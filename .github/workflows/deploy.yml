@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v16.18.0/bin/yarn:/home/ubuntu/.nvm/versions/node/v16.18.0/bin/pm2"
+            export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v16.18.0/bin"
             echo $PATH
             which yarn
             cd ~/api-v2
