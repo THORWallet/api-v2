@@ -1,0 +1,38 @@
+name: Deploy API to Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.18.0' # or the version you're using
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /path/to/your/project
+            git pull origin master
+            yarn install
+            yarn build
+            pm2 delete api-v2
+            pm2 start yarn --name "api-v2" --watch --ignore-watch="node_modules" --log "/home/ubuntu/api.log" --log-date-format "YYYY-MM-DD HH:mm:ss" -- start:prod
