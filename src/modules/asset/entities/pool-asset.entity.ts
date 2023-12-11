@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, OmitType } from '@nestjs/swagger'
+import { IsBoolean, IsString } from 'class-validator'
 
 @Entity()
 export class PoolAsset {
@@ -34,4 +35,22 @@ export class PoolAsset {
   @Column({ nullable: true })
   @ApiProperty({ description: 'The chain ID associated with the asset', type: Number, required: false })
   chainId?: number
+}
+
+export class Asset {
+  @ApiProperty({ description: 'Asset chain', type: String })
+  @IsString()
+  chain: string
+
+  @ApiProperty({ description: 'Asset ticker', type: Boolean, example: 'ETH-0x....' })
+  @IsString()
+  ticker: string
+
+  @Column({ nullable: true })
+  @ApiProperty({ description: 'The contract address of the asset', type: String, required: false })
+  contractAddress?: string
+
+  @ApiProperty({ description: 'Asset is synth', type: Boolean })
+  @IsBoolean()
+  isSynth: boolean
 }
