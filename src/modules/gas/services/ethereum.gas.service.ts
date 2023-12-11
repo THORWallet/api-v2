@@ -30,7 +30,7 @@ export class EthereumGasService {
 
   async getGasFee(getGasDto: GetGasDto): Promise<EthGasResponse> {
     const isErc20 = getGasDto.asset.contractAddress !== undefined
-    const { txType } = getGasDto
+    const { txType, asset } = getGasDto
     const chainId = this.getChainId(getGasDto.asset)
 
     if (isErc20) {
@@ -43,6 +43,10 @@ export class EthereumGasService {
         default:
           throw new HttpException('Invalid transaction type', HttpStatus.BAD_REQUEST)
       }
+    }
+
+    if (asset.chain !== 'ETH' && asset.ticker !== 'ETH') {
+      throw new HttpException('Invalid asset', HttpStatus.BAD_REQUEST)
     }
 
     const gasFee = await this.getNativeGasFee(getGasDto)
