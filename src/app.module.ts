@@ -13,6 +13,7 @@ import { CACHE_TIME } from './constants'
 import { StatsModule } from './modules/stats/stats.module'
 import { PriceModule } from './modules/price/price.module'
 import { APP_GUARD } from '@nestjs/core'
+import { GasModule } from './modules/gas/gas.module'
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { APP_GUARD } from '@nestjs/core'
     BalanceModule,
     StatsModule,
     PriceModule,
+    GasModule,
   ],
   providers: [
     InsertAssetsCommand,

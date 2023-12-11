@@ -35,6 +35,4 @@ export class PoolService {
     await this.cacheManager.set(POOL_KEYS.mayaMidgardPool, data, CACHE_TIME.minute * 5)
     return data
   }
-
-  
 }
