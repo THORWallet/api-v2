@@ -17,9 +17,6 @@ jobs:
         with:
           node-version: '16.18.0' # or the version you're using
 
-      - name: Pull Master
-        run: git pull origin master
-
       - name: Install Dependencies
         run: yarn install
 
@@ -40,6 +37,7 @@ jobs:
             which yarn
             which pm2
             cd ~/api-v2
+            rm -rf yarn.lock
             git pull origin master
             yarn install
             yarn build
