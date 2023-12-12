@@ -7,6 +7,13 @@ export const tickers = [
     platforms: {},
   },
   {
+    coingeckoId: 'bitcoin-bep2',
+    icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579',
+    ticker: 'BTCB',
+    name: 'Bitcoin BEP2',
+    platforms: {},
+  },
+  {
     chain: 'ETH',
     coingeckoId: 'thorwallet',
     icon: 'https://assets.coingecko.com/coins/images/21843/large/tgt_logo.png?1641568708',
