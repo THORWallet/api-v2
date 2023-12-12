@@ -6,13 +6,16 @@ import { CACHE_TIME, tickers } from '../../constants'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
 import { PRICE_CACHE } from './cache-keys/price.cache-keys'
-import { PriceHistoryResponse } from './types'
+import { PriceHistoryResponse, PriceHistorySource } from './types'
+import { PoolService } from '../pool/pool.service'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class PriceService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly configService: ConfigService,
+    private readonly poolService: PoolService,
   ) {}
 
   mapTickerToCoinGeckoId = (ticker: string): string => {
@@ -57,6 +60,60 @@ export class PriceService {
       }, {})
     await this.cacheManager.set(PRICE_CACHE.coingeckoAssets(mappedTickers), result, CACHE_TIME.minute * 5)
     return result
+  }
+
+  fetchPriceHistory = async ({ ticker, days }: { ticker: string; days: number }): Promise<PriceHistoryResponse> => {
+    const tcPools = await this.poolService.getThorchainMidgardPools()
+    const mayaPools = await this.poolService.getMayaMidgardPools()
+    const isTcAsset = tcPools.some((pool) => pool.asset.includes(ticker))
+    const isMayaAsset = mayaPools.some((pool) => pool.asset.includes(ticker))
+
+    if (isMayaAsset || isTcAsset) {
+      return this.fetchPriceHistoryFromMidgard({ ticker, days, isMayaAsset, isTcAsset })
+    }
+
+    return this.fetchPriceHistoryFromCoinGecko({ ticker, days })
+  }
+
+  fetchPriceHistoryFromMidgard = async ({
+    ticker,
+    days,
+    isMayaAsset,
+    isTcAsset,
+  }: {
+    ticker: string
+    days: number
+    isMayaAsset: boolean
+    isTcAsset: boolean
+  }): Promise<PriceHistoryResponse> => {
+    const poolHistory = isTcAsset
+      ? await this.poolService.getTcPoolDepthHistory({ pool: ticker, count: days })
+      : await this.poolService.getMayaPoolDepthHistory({ pool: ticker, count: days })
+
+    const currentPrice = poolHistory.intervals[poolHistory.intervals.length - 1].assetPriceUSD
+
+    const priceBeforeCurrent = new BigNumber(poolHistory.intervals[poolHistory.intervals.length - 2].assetPriceUSD)
+    const priceChange24hUsd = new BigNumber(currentPrice).minus(priceBeforeCurrent)
+
+    const priceChange24hPercentage = priceChange24hUsd.div(priceBeforeCurrent).times(100)
+
+    const responseObject = {
+      id: ticker,
+      name: ticker,
+      priceChange24hUsd: priceChange24hUsd.toNumber(),
+      priceChange24hPercentage: priceChange24hPercentage.gte(0)
+        ? `+${priceChange24hPercentage.toFixed(2)}`
+        : `${priceChange24hPercentage.toFixed(2)}`,
+      history: poolHistory.intervals.map((i) => [
+        new BigNumber(i.endTime).toNumber() * 1000,
+        new BigNumber(i.assetPriceUSD).toNumber(),
+      ]),
+      currentPriceInUsd: new BigNumber(currentPrice).toNumber(),
+      timeStamp: new Date().getTime(),
+      source: isMayaAsset ? PriceHistorySource.MAYA_MIDGARD : PriceHistorySource.TC_MIDGARD,
+    }
+
+    return responseObject
   }
 
   fetchPriceHistoryFromCoinGecko = async ({
@@ -108,6 +165,7 @@ export class PriceService {
       history: data.prices,
       currentPriceInUsd: currentPrice,
       timeStamp: new Date().getTime(),
+      source: PriceHistorySource.COINGECKO,
     }
 
     return responseObject
