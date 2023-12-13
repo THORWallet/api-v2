@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { RUNE_DECIMAL } from '../../../constants'
-import { MidgardAction } from '../types/midgard-actions'
+import { MidgardAction } from '../../../types/midgard/midgard-actions'
 
 export const marshallMemberInfo = (pool: string, res: any): { assetAddress: string; runeAddress: string } | null => {
   if (!res || !res.pools) return null

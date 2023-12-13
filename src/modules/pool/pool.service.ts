@@ -13,9 +13,9 @@ import {
   marshallMidgardActions,
   marshallPoolInfo,
   marshallRunePrice,
-} from 'commands/assets/helpers/lp-helper'
-import { PoolKpis } from './types/poolKpis.types'
-import { MidgardAction } from 'commands/assets/types/midgard-actions'
+} from 'modules/pool/helpers/lp-helper'
+import { PoolKpis } from './types/pool-kpis.types'
+import { MidgardAction } from 'types/midgard/midgard-actions'
 import BigNumber from 'bignumber.js'
 
 @Injectable()

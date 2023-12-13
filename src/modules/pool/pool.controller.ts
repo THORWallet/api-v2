@@ -2,7 +2,7 @@ import { Controller, Get, HttpException, HttpStatus, Param } from '@nestjs/commo
 import { PoolService } from './pool.service'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PoolDetail } from './types/pool.types'
-import { PoolKpis } from './types/poolKpis.types'
+import { PoolKpis } from './types/pool-kpis.types'
 
 @Controller('pools')
 @ApiTags('Pools')
