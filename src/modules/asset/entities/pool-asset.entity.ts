@@ -42,7 +42,7 @@ export class Asset {
   @IsString()
   chain: string
 
-  @ApiProperty({ description: 'Asset ticker', type: Boolean, example: 'ETH-0x....' })
+  @ApiProperty({ description: 'Asset ticker', type: Boolean, example: 'ETH.TGT-0x....' })
   @IsString()
   ticker: string
 
