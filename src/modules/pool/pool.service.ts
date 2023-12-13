@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
-import { DepthAndPriceHistory, PoolDetail } from './types/pool.types'
+import { DepthAndPriceHistory, PoolDetail, TvlResponse } from './types/pool.types'
 import { POOL_KEYS } from './cache-keys/pool.cache-keys'
 import { CACHE_TIME, RUNE_DECIMAL } from '../../constants'
 import axios from 'axios'
@@ -74,6 +74,22 @@ export class PoolService {
     )
 
     await this.cacheManager.set(POOL_KEYS.mayaPoolHistory(pool, count), data, CACHE_TIME.minute * 5)
+    return data
+  }
+
+  getTcTvlHistory = async ({ count }: { count: number }): Promise<TvlResponse> => {
+    const { data } = await axios.get<TvlResponse>(this.configService.get('PUBLIC_TC_MIDGARD_URL') + '/history/tvl', {
+      params: { interval: 'day', count },
+    })
+
+    return data
+  }
+
+  getMayaTvlHistory = async ({ count }: { count: number }): Promise<TvlResponse> => {
+    const { data } = await axios.get<TvlResponse>(this.configService.get('MAYA_MIDGARD_URL') + '/history/tvl', {
+      params: { interval: 'day', count },
+    })
+
     return data
   }
 

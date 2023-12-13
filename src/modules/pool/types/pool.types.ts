@@ -86,3 +86,23 @@ export type DepthAndPriceHistory = {
   intervals: Interval[]
   meta: Meta
 }
+
+type PoolDepth = {
+  pool: string
+  totalDepth: string
+}
+
+type MetaAndInterval = {
+  startTime: string
+  endTime: string
+  totalValuePooled: string
+  poolsDepth: PoolDepth[]
+  totalValueBonded: string
+  totalValueLocked: string
+  runePriceUSD: string
+}
+
+export type TvlResponse = {
+  meta: MetaAndInterval
+  intervals: MetaAndInterval[]
+}

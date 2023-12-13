@@ -9,6 +9,7 @@ import { PRICE_CACHE } from './cache-keys/price.cache-keys'
 import { PriceHistoryResponse, PriceHistorySource } from './types'
 import { PoolService } from '../pool/pool.service'
 import BigNumber from 'bignumber.js'
+import { AssetCacaoNative, AssetRuneNative } from '../asset/asset.helpers'
 
 @Injectable()
 export class PriceService {
@@ -65,14 +66,64 @@ export class PriceService {
   fetchPriceHistory = async ({ ticker, days }: { ticker: string; days: number }): Promise<PriceHistoryResponse> => {
     const tcPools = await this.poolService.getThorchainMidgardPools()
     const mayaPools = await this.poolService.getMayaMidgardPools()
+    const isRune = ticker === `${AssetRuneNative.chain}.${AssetRuneNative.ticker}`
+    const isCacao = ticker === `${AssetCacaoNative.chain}.${AssetCacaoNative.ticker}`
     const isTcAsset = tcPools.some((pool) => pool.asset.includes(ticker))
-    const isMayaAsset = mayaPools.some((pool) => pool.asset.includes(ticker))
+    const isMayaAsset =
+      ticker !== `${AssetRuneNative.chain}.${AssetRuneNative.ticker}` &&
+      mayaPools.some((pool) => pool.asset.includes(ticker))
 
     if (isMayaAsset || isTcAsset) {
       return this.fetchPriceHistoryFromMidgard({ ticker, days, isMayaAsset, isTcAsset })
     }
 
+    if (isRune || isCacao) {
+      return this.getCacaoOrRunePriceHistory({ isRune, isCacao, interval: days })
+    }
+
     return this.fetchPriceHistoryFromCoinGecko({ ticker, days })
+  }
+
+  getCacaoOrRunePriceHistory = async ({
+    isRune,
+    isCacao,
+    interval,
+  }: {
+    isRune: boolean
+    isCacao: boolean
+    interval: number
+  }): Promise<PriceHistoryResponse> => {
+    if (!isRune && !isCacao) {
+      throw new HttpException('Invalid asset', HttpStatus.BAD_REQUEST)
+    }
+
+    const history =
+      isRune && !isCacao
+        ? await this.poolService.getTcTvlHistory({ count: interval })
+        : await this.poolService.getMayaTvlHistory({ count: interval })
+
+    const currentPrice = history.intervals[history.intervals.length - 1].runePriceUSD
+
+    const priceBeforeCurrent = new BigNumber(history.intervals[history.intervals.length - 2].runePriceUSD)
+    const priceChange24hUsd = new BigNumber(currentPrice).minus(priceBeforeCurrent)
+
+    const priceChange24hPercentage = priceChange24hUsd.div(priceBeforeCurrent).times(100)
+    console.log({ what: isRune ? PriceHistorySource.TC_MIDGARD : PriceHistorySource.MAYA_MIDGARD, isRune })
+    return {
+      id: isRune ? AssetRuneNative.ticker : AssetCacaoNative.ticker,
+      name: isRune ? AssetRuneNative.ticker : AssetCacaoNative.ticker,
+      priceChange24hUsd: priceChange24hUsd.toNumber(),
+      priceChange24hPercentage: priceChange24hPercentage.gte(0)
+        ? `+${priceChange24hPercentage.toFixed(2)}`
+        : `${priceChange24hPercentage.toFixed(2)}`,
+      history: history.intervals.map((i) => [
+        new BigNumber(i.endTime).toNumber() * 1000,
+        new BigNumber(i.runePriceUSD).toNumber(),
+      ]),
+      currentPriceInUsd: new BigNumber(history.intervals[history.intervals.length - 1].runePriceUSD).toNumber(),
+      timeStamp: new Date().getTime(),
+      source: isRune ? PriceHistorySource.TC_MIDGARD : PriceHistorySource.MAYA_MIDGARD,
+    }
   }
 
   fetchPriceHistoryFromMidgard = async ({
