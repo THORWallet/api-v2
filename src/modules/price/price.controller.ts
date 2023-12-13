@@ -27,7 +27,7 @@ export class PriceController {
       return cachedData
     }
 
-    const history = await this.priceService.fetchPriceHistoryFromCoinGecko({ ticker })
+    const history = await this.priceService.fetchPriceHistory({ ticker, days: 7 })
 
     this.cacheManager.set(PRICE_CACHE.coingeckoHistory(ticker, 7), history, CACHE_TIME.hour * 24)
 

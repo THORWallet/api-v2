@@ -49,3 +49,40 @@ export class PoolDetail {
   @ApiProperty({ type: String })
   saversAPR: string
 }
+
+type Interval = {
+  assetDepth: string
+  assetPrice: string
+  assetPriceUSD: string
+  endTime: string
+  liquidityUnits: string
+  luvi: string
+  membersCount: string
+  runeDepth: string
+  startTime: string
+  synthSupply: string
+  synthUnits: string
+  units: string
+}
+
+type Meta = {
+  endAssetDepth: string
+  endLPUnits: string
+  endMemberCount: string
+  endRuneDepth: string
+  endSynthUnits: string
+  endTime: string
+  luviIncrease: string
+  priceShiftLoss: string
+  startAssetDepth: string
+  startLPUnits: string
+  startMemberCount: string
+  startRuneDepth: string
+  startSynthUnits: string
+  startTime: string
+}
+
+export type DepthAndPriceHistory = {
+  intervals: Interval[]
+  meta: Meta
+}
