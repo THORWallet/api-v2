@@ -9751,4 +9751,27 @@ export const tickers = [
       ethereum: '0x6fa5e1c43b5a466cbd1cae7993b67c982400d481',
     },
   },
+  {
+    coingeckoId: 'wrapped-steth',
+    icon: 'https://assets.coingecko.com/coins/images/18834/large/wstETH.png?1696518295',
+    ticker: 'WSTETH',
+    name: 'Wrapped stETH',
+    platforms: {
+      ethereum: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+      'polygon-pos': '0x03b54a6e9a984069379fae1a4fc4dbae93b3bccd',
+      'arbitrum-one': '0x5979d7b546e38e414f7e9822514be443a4800529',
+      'optimistic-ethereum': '0x1f32b1c2345538c0c6f582fcb022739c4a194ebb',
+    },
+  },
+  {
+    coingeckoId: 'thorstarter',
+    icon: 'https://assets.coingecko.com/coins/images/16835/large/thorstarter.jpg?1696516403',
+    ticker: 'XRUNE',
+    name: 'Thorstarter',
+    platforms: {
+      ethereum: '0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c',
+      terra: 'terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm',
+      fantom: '0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6',
+    },
+  },
 ]

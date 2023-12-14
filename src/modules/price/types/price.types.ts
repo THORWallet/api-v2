@@ -23,3 +23,8 @@ export class PriceHistoryResponse {
   @ApiProperty({ description: 'Source of the price history', enum: PriceHistoryResponse, required: false })
   source: PriceHistorySource
 }
+
+export class PriceUSDResponse {
+  @ApiProperty({ description: 'Asset price in USD' })
+  priceUSD: number
+}

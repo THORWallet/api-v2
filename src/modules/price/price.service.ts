@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Asset } from '@xchainjs/xchain-util'
 import axios from 'axios'
 import { CACHE_TIME, tickers } from '../../constants'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
@@ -37,8 +36,8 @@ export class PriceService {
     return coingeckoId.toUpperCase()
   }
 
-  fetchPricesFromCoingecko = async (assets: Asset[]): Promise<Record<string, number>> => {
-    const mappedTickers = assets.map(({ ticker }) => this.mapTickerToCoinGeckoId(ticker)).join(',')
+  fetchPricesFromCoingecko = async (tickers: string[]): Promise<Record<string, number>> => {
+    const mappedTickers = tickers.map((ticker) => this.mapTickerToCoinGeckoId(ticker)).join(',')
 
     const cachedData = await this.cacheManager.get<Record<string, number>>(PRICE_CACHE.coingeckoAssets(mappedTickers))
     if (cachedData) {

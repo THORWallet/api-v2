@@ -5,7 +5,7 @@ import { BalancesResponse } from '@covalenthq/client-sdk'
 import { BncClient } from '@binance-chain/javascript-sdk/lib/client'
 import BigNumber from 'bignumber.js'
 import axios from 'axios'
-import { Balance, BalanceResponse, BnbBalance } from './types/balance'
+import { Balance, BalanceResponse, BnbBalance } from './types'
 import { assetAmount, assetFromString, assetToBase, baseAmount } from '@xchainjs/xchain-util'
 import {
   BCH_DECIMAL,
@@ -374,7 +374,7 @@ export class BalanceService {
       })
     }
     const usdPrices = await this.priceService.fetchPricesFromCoingecko(
-      rawBalances.map((balance) => assetFromString(`BNB.${balance.symbol}`)),
+      rawBalances.map((balance) => assetFromString(`BNB.${balance.symbol}`).ticker),
     )
     let totalBalanceInUsd = new BigNumber(0)
     const balances = rawBalances.map((balance) => {
@@ -487,7 +487,7 @@ export class BalanceService {
       balances.push({ denom: 'uatom', amount: '0' } as unknown as proto.cosmos.base.v1beta1.Coin)
     }
     const assetPrices = await this.priceService.fetchPricesFromCoingecko(
-      balances.map((balance) => getCosmosAssetFromDenom(balance.denom)),
+      balances.map((balance) => getCosmosAssetFromDenom(balance.denom).ticker),
     )
     let totalBalanceInUsd = new BigNumber(0)
     const assets = balances
@@ -602,7 +602,9 @@ export class BalanceService {
       })
     })
 
-    const usdPrices = await this.priceService.fetchPricesFromCoingecko(mappedBalances.map((balance) => balance.asset))
+    const usdPrices = await this.priceService.fetchPricesFromCoingecko(
+      mappedBalances.map((balance) => balance.asset.ticker),
+    )
 
     const apiBalances = mappedBalances.map((t) => {
       const assetPrice = usdPrices[t.asset.ticker].toString() || '0'
