@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Controller, Get, Inject, Param } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PriceService } from './price.service'
-import { PriceHistoryResponse } from './types'
+import { PriceHistoryResponse, PriceUSDResponse } from './types'
 import { Cache } from 'cache-manager'
 import { PRICE_CACHE } from './cache-keys/price.cache-keys'
 import { CACHE_TIME } from '../../constants'
@@ -32,5 +32,14 @@ export class PriceController {
     this.cacheManager.set(PRICE_CACHE.coingeckoHistory(ticker, 7), history, CACHE_TIME.hour * 24)
 
     return history
+  }
+
+  @Get('/usd/:ticker')
+  @ApiOperation({
+    summary: 'Get price in usd for a given ticker',
+  })
+  @ApiResponse({ status: 200, description: 'Success', type: PriceUSDResponse })
+  async getUsdPrice(@Param('ticker') ticker: string): Promise<Record<string, number>> {
+    return this.priceService.fetchPricesFromCoingecko([ticker])
   }
 }
