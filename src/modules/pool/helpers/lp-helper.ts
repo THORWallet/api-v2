@@ -51,6 +51,7 @@ export const marshallLp = (
   runeDepositValue: BigNumber
   assetRedeemValue: BigNumber
   runeRedeemValue: BigNumber
+  luviGrowthPercent: BigNumber
 } | null => {
   if (!res) return null
   return {
@@ -58,6 +59,7 @@ export const marshallLp = (
     runeDepositValue: new BigNumber(res.rune_deposit_value || 0).div(10 ** RUNE_DECIMAL),
     assetRedeemValue: new BigNumber(res.asset_redeem_value || 0).div(10 ** RUNE_DECIMAL),
     runeRedeemValue: new BigNumber(res.rune_redeem_value || 0).div(10 ** RUNE_DECIMAL),
+    luviGrowthPercent: new BigNumber(res.luvi_growth_pct || 0).times(100),
   }
 }
 

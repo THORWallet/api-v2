@@ -41,6 +41,9 @@ export class PoolKpis {
   runePrice: number
 
   @ApiProperty({ type: Number })
+  luviGrowthPercent: number
+
+  @ApiProperty({ type: Number })
   assetPrice: number
 
   @ApiProperty({ type: LpvsHodl })

@@ -126,6 +126,12 @@ export class PoolService {
           member.runeAddress || member.assetAddress
         }&asset=${pool}&offset=0&limit=50`,
     )
+    console.log(
+      this.configService.get('PUBLIC_TC_MIDGARD_URL') +
+        `/actions?type=addLiquidity&address=${member.assetAddress || member.runeAddress},${
+          member.runeAddress || member.assetAddress
+        }&asset=${pool}&offset=0&limit=50`,
+    )
     const actionsAdd = marshallMidgardActions(rawActionsAdd)
     if (!actionsAdd) return null
 
@@ -148,6 +154,7 @@ export class PoolService {
     const data: PoolKpis = {
       address: address,
       pool: pool,
+      luviGrowthPercent: lp.luviGrowthPercent.toNumber(),
       runePrice: runePrice.toNumber(),
       assetPrice: assetPrice.toNumber(),
       assetShift: {
@@ -195,14 +202,26 @@ export class PoolService {
           if (c.coins && c.coins.length > 0) {
             if (c.coins[0].asset === 'THOR.RUNE') {
               balanceRune = balanceRune.plus(c.coins[0].amount)
+              console.log(balanceRune.toString(), c.coins[0].amount)
               const addedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.runePriceUsd)
               totalUsd = totalUsd.plus(addedInUsd)
-              data.added.runeUsd += addedInUsd.toNumber()
+              if (c.coins.length === 1) {
+                data.added.runeUsd += addedInUsd.div(2).toNumber()
+                data.added.assetUsd += addedInUsd.div(2).toNumber()
+              } else {
+                data.added.runeUsd += addedInUsd.toNumber()
+              }
             } else {
               balanceAsset = balanceAsset.plus(c.coins[0].amount)
+              console.log(balanceAsset.toString(), c.coins[0].amount)
               const addedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.assetPriceUsd)
               totalUsd = totalUsd.plus(addedInUsd)
-              data.added.assetUsd += addedInUsd.toNumber()
+              if (c.coins.length === 1) {
+                data.added.runeUsd += addedInUsd.div(2).toNumber()
+                data.added.assetUsd += addedInUsd.div(2).toNumber()
+              } else {
+                data.added.assetUsd += addedInUsd.toNumber()
+              }
             }
           }
         } else {
@@ -226,7 +245,7 @@ export class PoolService {
 
     const redeemable = data.redeemable.assetUsd + data.redeemable.runeUsd
     const added = data.added.assetUsd + data.added.runeUsd
-    data.lpVsHodl.percent = (100 - (redeemable * 100) / added) * (data.lpVsHodl.usd < 0 ? -1 : 1)
+    data.lpVsHodl.percent = new BigNumber((redeemable * 100) / added).minus(100).toNumber()
 
     return data
   }
