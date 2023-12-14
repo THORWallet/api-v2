@@ -24,7 +24,7 @@ export class GasController {
       case Chain.Ethereum:
         return this.ethGasService.getGasFee(getGasDto)
       case Chain.Bitcoin:
-        return this.bitcoinGasService.getGasFee(getGasDto)
+        // return this.bitcoinGasService.getGasFee(getGasDto)
       default:
         throw new HttpException(`${getGasDto.asset.chain} is not supported.`, HttpStatus.BAD_REQUEST)
     }
