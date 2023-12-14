@@ -3,11 +3,15 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { EthGasResponse, GetGasDto } from './entities/get-gas.dto'
 import { EthereumGasService } from './services/ethereum.gas.service'
 import { Chain } from '../../constants'
+import { BitcoinGasService } from './services/bitcoin.gas.service'
 
 @Controller('gas')
 @ApiTags('Gas')
 export class GasController {
-  constructor(private readonly ethGasService: EthereumGasService) {}
+  constructor(
+    private readonly ethGasService: EthereumGasService,
+    private readonly bitcoinGasService: BitcoinGasService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -19,6 +23,8 @@ export class GasController {
     switch (getGasDto.asset.chain) {
       case Chain.Ethereum:
         return this.ethGasService.getGasFee(getGasDto)
+      case Chain.Bitcoin:
+        return this.bitcoinGasService.getGasFee(getGasDto)
       default:
         throw new HttpException(`${getGasDto.asset.chain} is not supported.`, HttpStatus.BAD_REQUEST)
     }
