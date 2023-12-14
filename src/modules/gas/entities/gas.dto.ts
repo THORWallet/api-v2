@@ -38,10 +38,26 @@ export class GetGasDto {
   txType?: TransactionType
 }
 
-export class EthGasResponse {
-  @ApiProperty({ description: 'The gas fee', type: String })
-  gasFee: string
+export class GasFees {
+  @ApiProperty({ description: 'The average gas fee', type: String })
+  average: string
+  @ApiProperty({ description: 'The fast gas fee', type: String })
+  fast: string
+  @ApiProperty({ description: 'The fastest gas fee', type: String })
+  fastest: string
+}
 
-  @ApiProperty({ description: 'Chain id for the gasFee', type: Number })
-  chainId: number
+export enum GasFeeType {
+  ETH_FEES = 'eth-fees',
+}
+
+export class GasResponse {
+  @ApiProperty({ description: 'The gas fee', type: GasFees })
+  gasFees: GasFees
+  @ApiProperty({ description: 'The base fee', type: String })
+  baseFee: string
+  @ApiProperty({ description: 'Chain id for the gasFee', type: Number, required: false })
+  chainId?: number
+  @ApiProperty({ description: 'Gas fee type', enum: TransactionType, required: false })
+  type: GasFeeType
 }

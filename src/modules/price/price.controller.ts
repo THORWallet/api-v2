@@ -34,6 +34,7 @@ export class PriceController {
     return history
   }
 
+  //TODO: Extend this endpoint to accept multiple tickers, use midgards, make more abstraction
   @Get('/usd/:ticker')
   @ApiOperation({
     summary: 'Get price in usd for a given ticker',
