@@ -126,12 +126,6 @@ export class PoolService {
           member.runeAddress || member.assetAddress
         }&asset=${pool}&offset=0&limit=50`,
     )
-    console.log(
-      this.configService.get('PUBLIC_TC_MIDGARD_URL') +
-        `/actions?type=addLiquidity&address=${member.assetAddress || member.runeAddress},${
-          member.runeAddress || member.assetAddress
-        }&asset=${pool}&offset=0&limit=50`,
-    )
     const actionsAdd = marshallMidgardActions(rawActionsAdd)
     if (!actionsAdd) return null
 
