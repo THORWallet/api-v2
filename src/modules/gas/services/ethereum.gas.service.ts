@@ -40,6 +40,7 @@ export class EthereumGasService {
 
           return { gasFee, chainId }
         }
+        //TODO: add deposit fee
         default:
           throw new HttpException('Invalid transaction type', HttpStatus.BAD_REQUEST)
       }
