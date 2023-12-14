@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Asset } from '../../asset/entities/pool-asset.entity'
 import { IsDefined, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
+import { EthGasResponse } from './eth.types'
 
 export enum TransactionType {
   DEPOSIT = 'deposit',
@@ -38,10 +39,4 @@ export class GetGasDto {
   txType?: TransactionType
 }
 
-export class EthGasResponse {
-  @ApiProperty({ description: 'The gas fee', type: String })
-  gasFee: string
-
-  @ApiProperty({ description: 'Chain id for the gasFee', type: Number })
-  chainId: number
-}
+export class GasResponse extends EthGasResponse {}

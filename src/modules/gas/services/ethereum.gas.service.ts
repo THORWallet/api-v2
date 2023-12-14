@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { EthGasResponse, GetGasDto } from '../entities/get-gas.dto'
+import { EthGasResponse, GetGasDto } from '../entities/gas.dto'
 import { InfuraProvider } from '@ethersproject/providers'
 import { ConfigService } from '@nestjs/config'
 import { BigNumber } from '@ethersproject/bignumber'

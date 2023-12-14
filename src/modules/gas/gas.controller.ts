@@ -1,6 +1,6 @@
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { EthGasResponse, GetGasDto } from './entities/get-gas.dto'
+import { GetGasDto } from './entities/gas.dto'
 import { EthereumGasService } from './services/ethereum.gas.service'
 import { Chain } from '../../constants'
 import { BitcoinGasService } from './services/bitcoin.gas.service'
