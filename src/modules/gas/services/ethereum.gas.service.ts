@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { EthGasResponse, GetGasDto } from '../entities/gas.dto'
+import { GasFeeType, GasResponse, GetGasDto } from '../entities/gas.dto'
 import { InfuraProvider } from '@ethersproject/providers'
 import { ConfigService } from '@nestjs/config'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -28,7 +28,7 @@ export class EthereumGasService {
     throw new HttpException('Invalid chain', HttpStatus.BAD_REQUEST)
   }
 
-  async getGasFee(getGasDto: GetGasDto): Promise<EthGasResponse> {
+  async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
     const isErc20 = getGasDto.asset.contractAddress !== undefined
     const { txType, asset } = getGasDto
     const chainId = this.getChainId(getGasDto.asset)
@@ -38,7 +38,12 @@ export class EthereumGasService {
         case 'transfer': {
           const gasFee = await this.getErc20TransferGasFee(getGasDto)
 
-          return { gasFee, chainId }
+          return {
+            gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
+            baseFee: gasFee,
+            chainId,
+            type: GasFeeType.ETH_FEES,
+          }
         }
         //TODO: add deposit fee
         default:
@@ -52,7 +57,12 @@ export class EthereumGasService {
 
     const gasFee = await this.getNativeGasFee(getGasDto)
 
-    return { gasFee, chainId }
+    return {
+      gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
+      baseFee: gasFee,
+      chainId,
+      type: GasFeeType.ETH_FEES,
+    }
   }
 
   estimateCallGasLimit = async (args: EstimateCallGasLimitArgs): Promise<BigNumber> => {

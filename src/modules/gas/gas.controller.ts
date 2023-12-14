@@ -1,6 +1,6 @@
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { GetGasDto } from './entities/gas.dto'
+import { GasResponse, GetGasDto } from './entities/gas.dto'
 import { EthereumGasService } from './services/ethereum.gas.service'
 import { Chain } from '../../constants'
 import { BitcoinGasService } from './services/bitcoin.gas.service'
@@ -18,8 +18,8 @@ export class GasController {
     summary: 'Get gas fee for asset action',
   })
   @ApiBody({ type: GetGasDto })
-  @ApiResponse({ status: 200, description: 'Success', type: EthGasResponse })
-  async gas(@Body() getGasDto: GetGasDto): Promise<EthGasResponse> {
+  @ApiResponse({ status: 200, description: 'Success', type: GasResponse })
+  async gas(@Body() getGasDto: GetGasDto): Promise<GasResponse> {
     switch (getGasDto.asset.chain) {
       case Chain.Ethereum:
         return this.ethGasService.getGasFee(getGasDto)

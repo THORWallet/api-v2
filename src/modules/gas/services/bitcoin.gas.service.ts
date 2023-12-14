@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { BlockCypherFeeRateResponse, BlockchainInfoResponse, GetGasDto } from '../entities'
+import { BlockCypherFeeRateResponse, BlockchainInfoResponse } from '../entities'
 import axios from 'axios'
 import { ConfigService } from '@nestjs/config'
 
-const DEFAULT_SUGGESTED_TRANSACTION_FEE = 127
+// const DEFAULT_SUGGESTED_TRANSACTION_FEE = 127
 
 @Injectable()
 export class BitcoinGasService {
@@ -39,5 +39,5 @@ export class BitcoinGasService {
     }
   }
 
-  async getGasFee(args: GetGasDto): Promise<any> {}
+  // async getGasFee(args: GetGasDto): Promise<any> {}
 }
