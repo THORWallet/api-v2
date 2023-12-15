@@ -5,8 +5,6 @@ import { ConfigService } from '@nestjs/config'
 import { UtxoService } from './utxo.service'
 import { Chain } from '../../../constants'
 
-// const DEFAULT_SUGGESTED_TRANSACTION_FEE = 127
-
 @Injectable()
 export class BitcoinGasService {
   constructor(

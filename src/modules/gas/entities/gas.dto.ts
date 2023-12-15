@@ -50,12 +50,16 @@ export class GasFees {
 export enum GasFeeType {
   ETH_FEES = 'eth-fees',
   BTC_FEES = 'btc-fees',
+  DOGE_FEES = 'doge-fees',
+  LTC_FEES = 'ltc-fees',
+  BTCH_FEES = 'btch-fees',
+  DASH_FEES = 'dash-fees',
 }
 
 export class GasResponse {
-  @ApiProperty({ description: 'The gas fee', type: GasFees })
+  @ApiProperty({ description: 'The gas fee dominated in asset', type: GasFees })
   gasFees: GasFees
-  @ApiProperty({ description: 'The different gas rates for utxo-s', type: GasFees, required: false })
+  @ApiProperty({ description: 'The different gas rates for utxo-s / byte', type: GasFees, required: false })
   rates?: GasFees
   @ApiProperty({ description: 'The base fee', type: Number })
   baseFee: number
