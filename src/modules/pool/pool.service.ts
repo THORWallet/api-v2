@@ -195,8 +195,6 @@ export class PoolService {
         if (i.type === 'addLiquidity') {
           if (c.coins && c.coins.length > 0) {
             if (c.coins[0].asset === 'THOR.RUNE') {
-              balanceRune = balanceRune.plus(c.coins[0].amount)
-              console.log(balanceRune.toString(), c.coins[0].amount)
               const addedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.runePriceUsd)
               totalUsd = totalUsd.plus(addedInUsd)
               if (c.coins.length === 1) {
@@ -207,7 +205,6 @@ export class PoolService {
               }
             } else {
               balanceAsset = balanceAsset.plus(c.coins[0].amount)
-              console.log(balanceAsset.toString(), c.coins[0].amount)
               const addedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.assetPriceUsd)
               totalUsd = totalUsd.plus(addedInUsd)
               if (c.coins.length === 1) {
@@ -224,13 +221,21 @@ export class PoolService {
               balanceRune = balanceRune.minus(c.coins[0].amount)
               const removedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.runePriceUsd)
               totalUsd = totalUsd.minus(removedInUsd)
-              data.added.runeUsd -= removedInUsd.div(2).toNumber()
-              data.added.assetUsd -= removedInUsd.div(2).toNumber()
+              if (c.coins.length === 1) {
+                data.added.runeUsd -= removedInUsd.div(2).toNumber()
+                data.added.assetUsd -= removedInUsd.div(2).toNumber()
+              } else {
+                data.added.runeUsd -= removedInUsd.toNumber()
+              }
             } else {
               balanceAsset = balanceAsset.minus(c.coins[0].amount)
               const removedInUsd = new BigNumber(c.coins[0].amount).div(10 ** RUNE_DECIMAL).times(price.assetPriceUsd)
-              data.added.runeUsd -= removedInUsd.div(2).toNumber()
-              data.added.assetUsd -= removedInUsd.div(2).toNumber()
+              if (c.coins.length === 1) {
+                data.added.runeUsd -= removedInUsd.div(2).toNumber()
+                data.added.assetUsd -= removedInUsd.div(2).toNumber()
+              } else {
+                data.added.assetUsd -= removedInUsd.toNumber()
+              }
             }
           }
         }
@@ -238,8 +243,7 @@ export class PoolService {
     }
 
     const redeemable = data.redeemable.assetUsd + data.redeemable.runeUsd
-    const added = data.added.assetUsd + data.added.runeUsd
-    data.lpVsHodl.percent = new BigNumber((redeemable * 100) / added).minus(100).toNumber()
+    data.lpVsHodl.percent = ((redeemable - totalUsd.toNumber()) / totalUsd.toNumber()) * 100
 
     return data
   }
