@@ -115,7 +115,7 @@ export class PoolService {
     const assetPrice = poolInfo.balanceRune.times(runePrice).div(poolInfo.balanceAsset)
 
     const { data: rawLp } = await axios.get<any>(
-      this.configService.get('THORNODE_URL') + '/thorchain/pool/' + pool + '/liquidity_provider/' + address,
+      this.configService.get('THORNODE_URL') + '/thorchain/pool/' + pool + '/liquidity_provider/' + member.runeAddress,
     )
     const lp = marshallLp(rawLp)
     if (!lp) return null
