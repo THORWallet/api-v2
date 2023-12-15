@@ -1,2 +1,3 @@
 export * from './eth.types'
-export * from './get-gas.dto'
+export * from './gas.dto'
+export * from './btc.types'
