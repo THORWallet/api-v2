@@ -1,17 +1,13 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, Post } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { GasResponse, GetGasDto } from './entities/gas.dto'
-import { EthereumGasService } from './services/ethereum.gas.service'
-import { Chain } from '../../constants'
-import { BitcoinGasService } from './services/bitcoin.gas.service'
+
+import { GasService } from './services/gas.service'
 
 @Controller('gas')
 @ApiTags('Gas')
 export class GasController {
-  constructor(
-    private readonly ethGasService: EthereumGasService,
-    private readonly bitcoinGasService: BitcoinGasService,
-  ) {}
+  constructor(private readonly gasService: GasService) {}
 
   @Post()
   @ApiOperation({
@@ -20,13 +16,6 @@ export class GasController {
   @ApiBody({ type: GetGasDto })
   @ApiResponse({ status: 200, description: 'Success', type: GasResponse })
   async gas(@Body() getGasDto: GetGasDto): Promise<GasResponse> {
-    switch (getGasDto.asset.chain) {
-      case Chain.Ethereum:
-        return this.ethGasService.getGasFee(getGasDto)
-      case Chain.Bitcoin:
-        // return this.bitcoinGasService.getGasFee(getGasDto)
-      default:
-        throw new HttpException(`${getGasDto.asset.chain} is not supported.`, HttpStatus.BAD_REQUEST)
-    }
+    return this.gasService.getGasFee(getGasDto)
   }
 }
