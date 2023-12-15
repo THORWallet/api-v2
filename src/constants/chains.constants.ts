@@ -15,6 +15,8 @@ export enum Chain {
   Maya = 'MAYA',
 }
 
+export type UTXOChain = Chain.Bitcoin | Chain.BitcoinCash | Chain.Doge | Chain.Litecoin | Chain.Dash
+
 export const chainIds = {
   Ethereum: 1 as const,
   EthereumRopsten: 3 as const,

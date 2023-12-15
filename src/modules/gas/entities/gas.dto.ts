@@ -39,23 +39,30 @@ export class GetGasDto {
 }
 
 export class GasFees {
-  @ApiProperty({ description: 'The average gas fee', type: String })
-  average: string
-  @ApiProperty({ description: 'The fast gas fee', type: String })
-  fast: string
-  @ApiProperty({ description: 'The fastest gas fee', type: String })
-  fastest: string
+  @ApiProperty({ description: 'The average gas fee', type: Number })
+  average: number
+  @ApiProperty({ description: 'The fast gas fee', type: Number })
+  fast: number
+  @ApiProperty({ description: 'The fastest gas fee', type: Number })
+  fastest: number
 }
 
 export enum GasFeeType {
   ETH_FEES = 'eth-fees',
+  BTC_FEES = 'btc-fees',
+  DOGE_FEES = 'doge-fees',
+  LTC_FEES = 'ltc-fees',
+  BTCH_FEES = 'btch-fees',
+  DASH_FEES = 'dash-fees',
 }
 
 export class GasResponse {
-  @ApiProperty({ description: 'The gas fee', type: GasFees })
+  @ApiProperty({ description: 'The gas fee dominated in asset', type: GasFees })
   gasFees: GasFees
-  @ApiProperty({ description: 'The base fee', type: String })
-  baseFee: string
+  @ApiProperty({ description: 'The different gas rates for utxo-s / byte', type: GasFees, required: false })
+  rates?: GasFees
+  @ApiProperty({ description: 'The base fee', type: Number })
+  baseFee: number
   @ApiProperty({ description: 'Chain id for the gasFee', type: Number, required: false })
   chainId?: number
   @ApiProperty({ description: 'Gas fee type', enum: TransactionType, required: false })

@@ -81,7 +81,7 @@ export class EthereumGasService {
     })
   }
 
-  async getErc20TransferGasFee(getGasDto: GetGasDto): Promise<string> {
+  async getErc20TransferGasFee(getGasDto: GetGasDto): Promise<number> {
     const { senderAddress, recipientAddress, amount, asset, txType } = getGasDto
 
     const gasFee = await this.estimateCallGasLimit({
@@ -92,10 +92,10 @@ export class EthereumGasService {
       params: [recipientAddress, amount.toString()],
     })
 
-    return gasFee.toString()
+    return gasFee.toNumber()
   }
 
-  async getNativeGasFee(getGasDto: GetGasDto): Promise<string> {
+  async getNativeGasFee(getGasDto: GetGasDto): Promise<number> {
     const { senderAddress, recipientAddress, amount, memo } = getGasDto
     const txAmount = BigNumber.from(amount)
 
@@ -106,6 +106,6 @@ export class EthereumGasService {
       data: memo ? toUtf8Bytes(memo) : undefined,
     })
 
-    return gasInBigNumber.toString()
+    return gasInBigNumber.toNumber()
   }
 }
