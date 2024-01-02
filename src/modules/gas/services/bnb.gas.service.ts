@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { GasFeeType, GasResponse } from '../entities'
 import BigNumber from 'bignumber.js'
-
 import { ConfigService } from '@nestjs/config'
 import axios from 'axios'
 import { BinanceFees } from '../../../types/bnb/bnb-client.types'

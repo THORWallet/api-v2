@@ -12,6 +12,7 @@ import { BscGasService } from './bsc.gas.service'
 import { ThorchainGasService } from './thorchain.gas.service'
 import { MayaGasService } from './maya.gas.service'
 import { BnbGasService } from './bnb.gas.service'
+import { AtomGasService } from './atom.gas.service'
 
 @Injectable()
 export class GasService {
@@ -27,6 +28,7 @@ export class GasService {
     private readonly tcGasService: ThorchainGasService,
     private readonly mayaGasService: MayaGasService,
     private readonly bnbGasService: BnbGasService,
+    private readonly atomGasService: AtomGasService,
   ) {}
 
   async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
@@ -53,7 +55,9 @@ export class GasService {
         return this.mayaGasService.getGasFee()
       case Chain.Binance:
         return this.bnbGasService.getGasFee()
-      //ATOM, KUJI
+      case Chain.Cosmos:
+        return this.atomGasService.getGasFee()
+      // KUJI
       default:
         throw new HttpException(`${getGasDto.asset.chain} is not supported.`, HttpStatus.BAD_REQUEST)
     }
