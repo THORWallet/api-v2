@@ -13,6 +13,7 @@ import { BscGasService } from './services/bsc.gas.service'
 import { ThorchainGasService } from './services/thorchain.gas.service'
 import { StatsService } from '../stats/stats.service'
 import { MayaGasService } from './services/maya.gas.service'
+import { BnbGasService } from './services/bnb.gas.service'
 
 @Module({
   imports: [],
@@ -30,6 +31,7 @@ import { MayaGasService } from './services/maya.gas.service'
     ThorchainGasService,
     StatsService,
     MayaGasService,
+    BnbGasService,
   ],
   exports: [],
   controllers: [GasController],
