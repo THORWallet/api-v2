@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Stats, StatsData } from './types/stats.type'
+import { MimirStats, Stats, StatsData } from './types/stats.type'
 import { ConfigService } from '@nestjs/config'
 import axios from 'axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
@@ -38,6 +38,20 @@ export class StatsService {
     const { data } = await axios.get<StatsData>(this.configService.get('MAYA_MIDGARD_URL') + '/stats')
 
     await this.cacheManager.set(STATS_KEYS.mayaStats, data, CACHE_TIME.minute * 5)
+
+    return data
+  }
+
+  async getMayaMimirStats(): Promise<MimirStats> {
+    const mayaStats = await this.cacheManager.get<MimirStats>(STATS_KEYS.mayaMimirStats)
+
+    if (mayaStats) {
+      return mayaStats
+    }
+
+    const { data } = await axios.get<MimirStats>(this.configService.get('MAYANODE_URL') + '/mayachain/mimir')
+
+    await this.cacheManager.set(STATS_KEYS.mayaMimirStats, data, CACHE_TIME.minute * 5)
 
     return data
   }

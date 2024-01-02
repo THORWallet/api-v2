@@ -9,6 +9,8 @@ import { LitecoinGasService } from './litecoin.gas.service'
 import { DashGasService } from './dash.gas.service'
 import { AvaxGasService } from './avax.gas.service'
 import { BscGasService } from './bsc.gas.service'
+import { ThorchainGasService } from './thorchain.gas.service'
+import { MayaGasService } from './maya.gas.service'
 
 @Injectable()
 export class GasService {
@@ -21,6 +23,8 @@ export class GasService {
     private readonly dashGasService: DashGasService,
     private readonly avaxGasService: AvaxGasService,
     private readonly bscGasService: BscGasService,
+    private readonly tcGasService: ThorchainGasService,
+    private readonly mayaGasService: MayaGasService,
   ) {}
 
   async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
@@ -41,6 +45,10 @@ export class GasService {
         return this.avaxGasService.getGasFee(getGasDto)
       case Chain.Avalanche:
         return this.bscGasService.getGasFee(getGasDto)
+      case Chain.THORChain:
+        return this.tcGasService.getGasFee()
+      case Chain.Maya:
+        return this.mayaGasService.getGasFee()
       default:
         throw new HttpException(`${getGasDto.asset.chain} is not supported.`, HttpStatus.BAD_REQUEST)
     }

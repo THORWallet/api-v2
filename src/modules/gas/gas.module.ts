@@ -10,6 +10,9 @@ import { LitecoinGasService } from './services/litecoin.gas.service'
 import { DashGasService } from './services/dash.gas.service'
 import { AvaxGasService } from './services/avax.gas.service'
 import { BscGasService } from './services/bsc.gas.service'
+import { ThorchainGasService } from './services/thorchain.gas.service'
+import { StatsService } from '../stats/stats.service'
+import { MayaGasService } from './services/maya.gas.service'
 
 @Module({
   imports: [],
@@ -24,6 +27,9 @@ import { BscGasService } from './services/bsc.gas.service'
     DashGasService,
     AvaxGasService,
     BscGasService,
+    ThorchainGasService,
+    StatsService,
+    MayaGasService,
   ],
   exports: [],
   controllers: [GasController],

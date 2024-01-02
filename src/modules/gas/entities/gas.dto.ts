@@ -56,6 +56,8 @@ export enum GasFeeType {
   DASH_FEES = 'dash-fees',
   AVAX_FEES = 'avax-fees',
   BSC_FEES = 'bsc-fees',
+  TC_FEES = 'tc-fees',
+  MAYA_FEES = 'maya-fees',
 }
 
 export class GasResponse {
