@@ -11,11 +11,11 @@ import { ethRpcs } from '../../../constants/eth-rpcs.constatns'
 import { SupportedChainIds } from '../../../commands/assets/helpers/helpers'
 
 @Injectable()
-export class AvaxGasService {
+export class BscGasService {
   constructor() {
-    this.infuraProvider = new StaticJsonRpcProvider(ethRpcs[SupportedChainIds.Avalanche].rpcUrl, {
-      chainId: SupportedChainIds.Avalanche,
-      name: ethRpcs[SupportedChainIds.Avalanche].networkName,
+    this.infuraProvider = new StaticJsonRpcProvider(ethRpcs[SupportedChainIds.BinanceSmartChain].rpcUrl, {
+      chainId: SupportedChainIds.BinanceSmartChain,
+      name: ethRpcs[SupportedChainIds.BinanceSmartChain].networkName,
     })
   }
 
@@ -24,7 +24,7 @@ export class AvaxGasService {
   async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
     const isErc20 = getGasDto.asset.contractAddress !== undefined
     const { txType, asset } = getGasDto
-    const chainId = SupportedChainIds.Avalanche
+    const chainId = SupportedChainIds.BinanceSmartChain
     if (isErc20) {
       switch (txType) {
         case 'transfer': {
@@ -34,7 +34,7 @@ export class AvaxGasService {
             gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
             baseFee: gasFee,
             chainId,
-            type: GasFeeType.AVAX_FEES,
+            type: GasFeeType.BSC_FEES,
           }
         }
         //TODO: add deposit fee
@@ -43,7 +43,7 @@ export class AvaxGasService {
       }
     }
 
-    if (asset.chain !== 'AVAX' && asset.ticker !== 'AVAX') {
+    if (asset.chain !== 'BSC' && asset.ticker !== 'BSC') {
       throw new HttpException('Invalid asset', HttpStatus.BAD_REQUEST)
     }
 
@@ -53,7 +53,7 @@ export class AvaxGasService {
       gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
       baseFee: gasFee,
       chainId,
-      type: GasFeeType.AVAX_FEES,
+      type: GasFeeType.BSC_FEES,
     }
   }
 
