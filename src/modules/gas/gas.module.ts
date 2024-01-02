@@ -15,6 +15,7 @@ import { StatsService } from '../stats/stats.service'
 import { MayaGasService } from './services/maya.gas.service'
 import { BnbGasService } from './services/bnb.gas.service'
 import { AtomGasService } from './services/atom.gas.service'
+import { KujiGasService } from './services/kuji.gas.service'
 
 @Module({
   imports: [],
@@ -34,6 +35,7 @@ import { AtomGasService } from './services/atom.gas.service'
     MayaGasService,
     BnbGasService,
     AtomGasService,
+    KujiGasService
   ],
   exports: [],
   controllers: [GasController],
