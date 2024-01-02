@@ -8,6 +8,7 @@ import { BitcoinCashGasService } from './services/bitcoin-cash.service'
 import { DogeGasService } from './services/doge.gas.service'
 import { LitecoinGasService } from './services/litecoin.gas.service'
 import { DashGasService } from './services/dash.gas.service'
+import { AvaxGasService } from './services/avax.gas.service'
 
 @Module({
   imports: [],
@@ -20,6 +21,7 @@ import { DashGasService } from './services/dash.gas.service'
     DogeGasService,
     LitecoinGasService,
     DashGasService,
+    AvaxGasService,
   ],
   exports: [],
   controllers: [GasController],
