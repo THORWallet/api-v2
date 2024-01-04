@@ -23,23 +23,16 @@ export class AvaxGasService {
 
   async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
     const isErc20 = getGasDto.asset.contractAddress !== undefined
-    const { txType, asset } = getGasDto
+    const { asset } = getGasDto
     const chainId = SupportedChainIds.Avalanche
     if (isErc20) {
-      switch (txType) {
-        case 'transfer': {
-          const gasFee = await this.getErc20TransferGasFee(getGasDto)
+      const gasFee = await this.getErc20TransferGasFee(getGasDto)
 
-          return {
-            gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
-            baseFee: gasFee,
-            chainId,
-            type: GasFeeType.AVAX_FEES,
-          }
-        }
-        //TODO: add deposit fee
-        default:
-          throw new HttpException('Invalid transaction type', HttpStatus.BAD_REQUEST)
+      return {
+        gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
+        baseFee: gasFee,
+        chainId,
+        type: GasFeeType.AVAX_FEES,
       }
     }
 

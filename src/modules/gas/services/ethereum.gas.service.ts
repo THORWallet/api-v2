@@ -30,24 +30,17 @@ export class EthereumGasService {
 
   async getGasFee(getGasDto: GetGasDto): Promise<GasResponse> {
     const isErc20 = getGasDto.asset.contractAddress !== undefined
-    const { txType, asset } = getGasDto
+    const { asset } = getGasDto
     const chainId = this.getChainId(getGasDto.asset)
 
     if (isErc20) {
-      switch (txType) {
-        case 'transfer': {
-          const gasFee = await this.getErc20TransferGasFee(getGasDto)
+      const gasFee = await this.getErc20TransferGasFee(getGasDto)
 
-          return {
-            gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
-            baseFee: gasFee,
-            chainId,
-            type: GasFeeType.ETH_FEES,
-          }
-        }
-        //TODO: add deposit fee
-        default:
-          throw new HttpException('Invalid transaction type', HttpStatus.BAD_REQUEST)
+      return {
+        gasFees: { average: gasFee, fast: gasFee, fastest: gasFee },
+        baseFee: gasFee,
+        chainId,
+        type: GasFeeType.ETH_FEES,
       }
     }
 
