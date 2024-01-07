@@ -131,24 +131,6 @@ export class QuoteService {
         affiliate_bps: affiliateBps,
       }
 
-      console.log({
-        from_asset: fromAsset,
-        to_asset: toAsset,
-        amount: fromAsset.includes('CACAO')
-          ? Math.floor(amount * CACAO_MULTIPLIER * 10 ** MIDGARD_DECIMAL)
-          : Math.floor(amount * 10 ** MIDGARD_DECIMAL),
-        destination,
-        ...(fromAsset.includes('CACAO') ||
-        fromAsset.includes('MAYA') ||
-        toAsset.includes('CACAO') ||
-        toAsset.includes('MAYA') ||
-        toAsset.includes('/') ||
-        fromAsset.includes('/')
-          ? {}
-          : { tolerance_bps: toleranceBps }),
-        affiliate: this.configService.get<string>('AFFILIATE_ADDRESS'),
-        affiliate_bps: affiliateBps,
-      })
       const mayaUrl = this.configService.get('MAYANODE_URL')
 
       const { data } = await axios.get<NodeSwapQuoteResponse>(`${mayaUrl}/mayachain/quote/swap`, {
