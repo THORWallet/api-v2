@@ -143,3 +143,11 @@ export const getDecimalsByAsset = (asset: Asset, contractAddress?: string): numb
   const chain = asset.synth ? Chain.THORChain : asset.chain
   return supportedGetDecimals[chain](asset, contractAddress)
 }
+
+export const isRuneNativeAsset = (asset: Asset): boolean => {
+  return assetEqualsAsset(asset, AssetRuneNative)
+}
+
+export const isRuneNativeAssetString = (assetString: string): boolean => {
+  return assetString === `${AssetRuneNative.chain}.${AssetRuneNative.symbol}`
+}

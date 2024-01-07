@@ -1,6 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { RUNE_DECIMAL } from '../../../constants'
 import { MidgardAction } from '../../../types/midgard/midgard-actions'
+import { PoolDetail } from '../types/pool.types'
+import { Asset } from '@xchainjs/xchain-util'
+import { assetEqualsAsset } from '../../asset/asset.helpers'
 
 export const marshallMemberInfo = (pool: string, res: any): { assetAddress: string; runeAddress: string } | null => {
   if (!res || !res.pools) return null
@@ -74,4 +77,13 @@ export const marshallHistoryDepthsPriceInUsd = (res: any): { assetPriceUsd: numb
     runePriceUsd: Number(res.intervals[0].assetPriceUSD) / Number(res.intervals[0].assetPrice),
     assetPriceUsd: Number(res.intervals[0].assetPriceUSD),
   }
+}
+
+export const getPoolForAsset = (pools: PoolDetail[], asset: string) => {
+  const assetInDottedForm = asset.replace('/', '.')
+  const pool = pools?.find((p) => {
+    return p.asset === assetInDottedForm
+  })
+
+  return pool
 }

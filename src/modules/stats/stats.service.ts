@@ -56,6 +56,20 @@ export class StatsService {
     return data
   }
 
+  async getTcMimirStats(): Promise<MimirStats> {
+    const tcMimir = await this.cacheManager.get<MimirStats>(STATS_KEYS.tcMimirStats)
+
+    if (tcMimir) {
+      return tcMimir
+    }
+
+    const { data } = await axios.get<MimirStats>(this.configService.get('THORNODE_URL') + '/thorchain/mimir')
+
+    await this.cacheManager.set(STATS_KEYS.tcMimirStats, data, CACHE_TIME.minute * 5)
+
+    return data
+  }
+
   async getStats(): Promise<Stats> {
     return {
       thorchain: await this.getTcStats(),

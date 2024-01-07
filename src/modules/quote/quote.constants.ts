@@ -1,0 +1,2 @@
+export const DEFAULT_STREAMING_INTERVAL = 9
+export const CACAO_MULTIPLIER = 100
